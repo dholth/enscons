@@ -1,0 +1,24 @@
+# Example build requirements folling build-deps-pep
+[build-system]
+requires = ["wheel>=0.29",  "pytoml>=0.1"]
+
+[tool.wheel]
+name="enscons"
+version="0.0.1"
+packages=['enscons']
+install_requires=[]
+description="Tools for building Python packages with SCons"
+license="MIT"
+classifiers=[
+  "Programming Language :: Python :: 2.7",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.4",
+  "Programming Language :: Python :: 3.5",
+]
+keywords=["packaging", "wheel"]
+author="Daniel Holth"
+author_email="dholth@fastmail.fm"
+url="https://bitbucket.org/dholth/enscons"
+
+[tool.wheel.extras_require]
+doc = ['sphinx']
