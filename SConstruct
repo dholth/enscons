@@ -54,3 +54,4 @@ package = env.Package(
         )
 
 env.Whl('purelib', py_source, root='.')
+env.Whl('docdir', Glob('enscons/*.py'), root='enscons')

@@ -162,7 +162,8 @@ def Whl(env, category, source, root=None):
     """
     target_dir = env['WHEEL_DATA_PATH'].Dir(category).get_path()
     for node in source:
-        args = (os.path.join(target_dir, node.get_path()), node)
+        relpath = os.path.relpath(node.get_path(), root or '')
+        args = (os.path.join(target_dir, relpath), node)
         env.InstallAs(*args)
 
 def generate(env):
