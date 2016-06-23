@@ -3,7 +3,31 @@
 # continue with regularly scheduled setup.py.
 # From https://bitbucket.org/dholth/setup-requires
 
-import sys, subprocess, pkg_resources
+import sys, subprocess, pkg_resources, argparse
+
+DEBUG=False
+
+if sys.argv[1] == 'clean':
+    sys.exit(0)
+
+parser = argparse.ArgumentParser(description='setup.py arguments')
+parser.add_argument('--egg-base', action="store", dest="base")
+parser.add_argument('-d', action="store", dest="destination")
+args, unknown = parser.parse_known_args(sys.argv)
+
+sys.argv = unknown # pass along to SCons
+
+# sys.argv[0] is -c not 'setup.py' with pip
+
+if 'egg_info' in unknown:
+    sys.argv.append("=".join(['--egg-base', args.base]))
+
+if args.destination:
+    sys.argv.append('='.join(['--wheel-base', args.destination]))
+
+if DEBUG:    
+    with open('/tmp/arglog.txt', 'a') as f:
+        f.write('parsed, unknown, new ' + '\n'.join((repr(args), repr(unknown), repr(sys.argv))) + '\n')    
 
 sys.path[0:0] = ['setup-requires']
 pkg_resources.working_set.add_entry('setup-requires')

@@ -1,6 +1,6 @@
 # Example build requirements folling build-deps-pep
 [build-system]
-requires = ["wheel>=0.29",  "pytoml>=0.1"]
+requires = ["pytoml>=0.1"]
 
 [tool.wheel]
 name="enscons"

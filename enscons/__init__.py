@@ -186,9 +186,12 @@ def generate(env):
     # Development .egg-info has no version number. Needs to have
     # underscore _ and not hyphen -
     env['EGG_INFO_PATH'] = env['PACKAGE_NAME_SAFE'] + '.egg-info'
-
+    if env['EGG_INFO_PREFIX']:
+        env['EGG_INFO_PATH'] = env.Dir(env['EGG_INFO_PREFIX']).Dir(env['EGG_INFO_PATH'])
+    
     # all files under this directory will be packaged as a wheel
     env['WHEEL_PATH'] = env.Dir('#build/wheel/')
+    
     env['DIST_INFO_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE']
                                                   + '-' + env['PACKAGE_VERSION'] + '.dist-info')
     env['WHEEL_DATA_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE'] 
@@ -213,9 +216,12 @@ def generate(env):
     pkg_info = env.Command('PKG-INFO', egg_info_targets(env)[0].get_path(),
                            Copy('$TARGET', '$SOURCE'))  # TARGET and SOURCE are ''?
 
-    whl = env.Zip(target='-'.join((env['PACKAGE_NAME_SAFE'], env['PACKAGE_VERSION'],
-                                     env['WHEEL_TAG'])) + '.whl',
+    wheel_filename = '-'.join((env['PACKAGE_NAME_SAFE'], env['PACKAGE_VERSION'], env['WHEEL_TAG'])) + '.whl'
+    wheel_target_dir = env.Dir(env['WHEEL_BASE'])
+    whl = env.Zip(target=env.Dir(wheel_target_dir).File(wheel_filename),
                   source=env['WHEEL_PATH'], ZIPROOT=env['WHEEL_PATH'])
+
+    env.Alias('bdist_wheel', whl)
 
     env.AddPostAction(whl, Action(add_manifest))
 

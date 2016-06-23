@@ -37,11 +37,29 @@ if False:
 
 full_tag = 'py2.py3-none-any'
 
+AddOption('--egg-base',
+          dest='egg_base',
+          type='string',
+          nargs=1,
+          action='store',
+          metavar='DIR',
+          help='egg-info target directory')
+
+AddOption('--wheel-base',
+          dest='wheel_base',
+          type='string',
+          nargs=1,
+          action='store',
+          metavar='DIR',
+          help='wheel target directory')
+
 # actually it should be the dictionary interface
 env = Environment(tools=['default', 'packaging', 'enscons'],
                   toolpath='.',
                   PACKAGE_METADATA=metadata,
-                  WHEEL_TAG=full_tag)
+                  WHEEL_TAG=full_tag,
+                  EGG_INFO_PREFIX = GetOption('egg_base'),
+                  WHEEL_BASE = GetOption('wheel_base') or 'dist')
 
 py_source = Glob('enscons/*.py')
 
