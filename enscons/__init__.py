@@ -220,7 +220,7 @@ def generate(env):
     wheel_target_dir = env.Dir(env['WHEEL_BASE'])
     whl = env.Zip(target=env.Dir(wheel_target_dir).File(wheel_filename),
                   source=env['WHEEL_PATH'], ZIPROOT=env['WHEEL_PATH'])
-
+    env.NoClean(whl)
     env.Alias('bdist_wheel', whl)
 
     env.AddPostAction(whl, Action(add_manifest))

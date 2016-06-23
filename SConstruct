@@ -64,12 +64,15 @@ env = Environment(tools=['default', 'packaging', 'enscons'],
 py_source = Glob('enscons/*.py')
 
 # XXX looks like if a file is in source twice, it's zipped twice also
-package = env.Package(
+sdist = env.Package(
         NAME=env['PACKAGE_NAME'],
         VERSION=env['PACKAGE_METADATA']['version'],
         PACKAGETYPE='src_zip',
-        source=FindSourceFiles() + ['PKG-INFO', 'setup.py']
+        target=['dist/' + env['PACKAGE_NAME'] + '-' + env['PACKAGE_VERSION']],
+        source=FindSourceFiles() + ['PKG-INFO', 'setup.py'],
         )
+env.NoClean(sdist)
+env.Alias('sdist', sdist)
 
 env.Whl('purelib', py_source, root='.')
 env.Whl('docdir', Glob('enscons/*.py'), root='enscons')
