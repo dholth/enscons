@@ -23,6 +23,7 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 
 import pytoml as toml
+import enscons
 
 metadata = dict(toml.load(open('pyproject.toml')))['tool']['wheel']
 
@@ -38,8 +39,7 @@ if False:
 full_tag = 'py2.py3-none-any'
 
 # actually it should be the dictionary interface
-env = Environment(tools=['default', 'packaging', 'enscons'],
-                  toolpath='.',
+env = Environment(tools=['default', 'packaging', enscons.generate],
                   PACKAGE_METADATA=metadata,
                   WHEEL_TAG=full_tag,
                   ROOT_IS_PURELIB=True)
