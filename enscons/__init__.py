@@ -22,9 +22,6 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 
-# This SConstruct and the bdist tool are released under the MIT license;
-# the pysdl2-cffi binding is GPL.
-
 from __future__ import unicode_literals, print_function
 
 from distutils import sysconfig
