@@ -125,6 +125,7 @@ def urlsafe_b64encode(data):
     """urlsafe_b64encode without padding"""
     return base64.urlsafe_b64encode(data).rstrip(b'=')
 
+import wheel.bdist_wheel
 def add_manifest(target, source, env):
     """
     Add the wheel manifest.
@@ -151,15 +152,19 @@ def wheelmeta_builder(target, source, env):
     with open(target[0].get_path(), 'w') as f:
         f.write("""Wheel-Version: 1.0
 Generator: enscons (0.0.1)
-Root-Is-Purelib: false
+Root-Is-Purelib: %s
 Tag: %s
-""" % env['WHEEL_TAG'])
+""" % (str(env['ROOT_IS_PURELIB']).lower(), env['WHEEL_TAG']))
 
 def Whl(env, category, source, root=None):
     """
     Copy wheel members into their archive locations.
     """
-    target_dir = env['WHEEL_DATA_PATH'].Dir(category).get_path()
+    in_root = ('platlib', 'purelib')[env['ROOT_IS_PURELIB']]
+    if category == in_root:
+        target_dir = env['WHEEL_PATH'].get_path()
+    else:
+        target_dir = env['WHEEL_DATA_PATH'].Dir(category).get_path()
     for node in source:
         relpath = os.path.relpath(node.get_path(), root or '')
         args = (os.path.join(target_dir, relpath), node)
@@ -183,8 +188,8 @@ def generate(env):
               metavar='DIR',
               help='wheel target directory')
     
-    env['EGG_INFO_PREFIX'] = GetOption('egg_base')
-    env['WHEEL_BASE'] = GetOption('wheel_base') or 'dist'
+    env['EGG_INFO_PREFIX'] = GetOption('egg_base')          # pip wants this in a target dir
+    env['WHEEL_BASE'] = GetOption('wheel_base') or 'dist'   # target directory for wheel
   
     env['PACKAGE_NAME'] = env['PACKAGE_METADATA']['name']
     env['PACKAGE_NAME_SAFE'] = normalize_package(env['PACKAGE_NAME'])
@@ -218,7 +223,9 @@ def generate(env):
     pkg_info = env.Command('PKG-INFO', egg_info_targets(env)[0].get_path(),
                            Copy('$TARGET', '$SOURCE'))  # TARGET and SOURCE are ''?
 
-    wheel_filename = '-'.join((env['PACKAGE_NAME_SAFE'], env['PACKAGE_VERSION'], env['WHEEL_TAG'])) + '.whl'
+    wheel_filename = '-'.join((env['PACKAGE_NAME_SAFE'], 
+                               env['PACKAGE_VERSION'], 
+                               env['WHEEL_TAG'])) + '.whl'
     wheel_target_dir = env.Dir(env['WHEEL_BASE'])
     whl = env.Zip(target=env.Dir(wheel_target_dir).File(wheel_filename),
                   source=env['WHEEL_PATH'], ZIPROOT=env['WHEEL_PATH'])

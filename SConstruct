@@ -41,7 +41,8 @@ full_tag = 'py2.py3-none-any'
 env = Environment(tools=['default', 'packaging', 'enscons'],
                   toolpath='.',
                   PACKAGE_METADATA=metadata,
-                  WHEEL_TAG=full_tag)
+                  WHEEL_TAG=full_tag,
+                  ROOT_IS_PURELIB=True)
 
 py_source = Glob('enscons/*.py')
 
