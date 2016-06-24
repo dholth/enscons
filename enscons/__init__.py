@@ -83,6 +83,9 @@ def egg_info_builder(target, source, env):
     Minimum egg_info. To be used only by pip to get dependencies.
     """
     # this command helps trick setuptools into doing work for us
+    metadata = env['PACKAGE_METADATA']
+    metadata['install_requires'] = metadata.get('install_requires', [])
+    metadata['extras_require'] = metadata.get('extras_require', {})
     command = Command(Distribution(env['PACKAGE_METADATA']))
     
     for dnode in target:

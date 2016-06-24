@@ -9,6 +9,7 @@ def setup():
 
     parser = argparse.ArgumentParser(description='setup.py arguments')
     parser.add_argument('--egg-base', action="store", dest="base")
+    parser.add_argument('--python-tag', action="store", dest="python_tag")
     parser.add_argument('-d', action="store", dest="destination")
     args, unknown = parser.parse_known_args(sys.argv)
 
