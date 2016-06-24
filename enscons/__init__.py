@@ -28,7 +28,7 @@
 from __future__ import unicode_literals, print_function
 
 from distutils import sysconfig
-from SCons.Script import Copy, Action, FindInstalledFiles
+from SCons.Script import Copy, Action, FindInstalledFiles, GetOption, AddOption
 import distutils.ccompiler, distutils.sysconfig, distutils.unixccompiler
 import wheel.metadata
 import os.path
@@ -85,7 +85,9 @@ def egg_info_builder(target, source, env):
     """
     Minimum egg_info. To be used only by pip to get dependencies.
     """
-    command = env['DUMMY_COMMAND']
+    # this command helps trick setuptools into doing work for us
+    command = Command(Distribution(env['PACKAGE_METADATA']))
+    
     for dnode in target:
         with open(dnode.get_path(), 'w') as f:
             if dnode.name == 'PKG-INFO':
@@ -153,9 +155,6 @@ Root-Is-Purelib: false
 Tag: %s
 """ % env['WHEEL_TAG'])
 
-def exists(env):
-    return True
-
 def Whl(env, category, source, root=None):
     """
     Copy wheel members into their archive locations.
@@ -167,18 +166,26 @@ def Whl(env, category, source, root=None):
         env.InstallAs(*args)
 
 def generate(env):
-    # XXX extension generation is not finished
-    env.Append(CPPPATH=[sysconfig.get_python_inc()])
-    env.Append(LIBPATH=[sysconfig.get_config_var('LIBDIR')])
-    # LIBS = ['python' + sysconfig.get_config_var('VERSION')] # only on CPython; ask distutils
-
-    compiler = distutils.ccompiler.new_compiler()
-    distutils.sysconfig.customize_compiler(compiler)
-    if isinstance(compiler, distutils.unixccompiler.UnixCCompiler):
-        env.MergeFlags(' '.join(compiler.compiler_so[1:]))
-        # XXX other flags are revealed in compiler
-    # XXX MSVC works differently
-
+    
+    AddOption('--egg-base',
+              dest='egg_base',
+              type='string',
+              nargs=1,
+              action='store',
+              metavar='DIR',
+              help='egg-info target directory')
+    
+    AddOption('--wheel-base',
+              dest='wheel_base',
+              type='string',
+              nargs=1,
+              action='store',
+              metavar='DIR',
+              help='wheel target directory')
+    
+    env['EGG_INFO_PREFIX'] = GetOption('egg_base')
+    env['WHEEL_BASE'] = GetOption('wheel_base') or 'dist'
+  
     env['PACKAGE_NAME'] = env['PACKAGE_METADATA']['name']
     env['PACKAGE_NAME_SAFE'] = normalize_package(env['PACKAGE_NAME'])
     env['PACKAGE_VERSION'] = env['PACKAGE_METADATA']['version']
@@ -199,12 +206,7 @@ def generate(env):
 
     env.Command(env['DIST_INFO_PATH'].File('WHEEL'), 'pyproject.toml', wheelmeta_builder)
 
-    # this distutils command helps trick setuptools into doing work for us
-    command = Command(Distribution(env['PACKAGE_METADATA']))
-    egg_info = env.Command(egg_info_targets(env),
-                           'pyproject.toml',
-                           egg_info_builder)
-    env['DUMMY_COMMAND'] = command
+    egg_info = env.Command(egg_info_targets(env), 'pyproject.toml', egg_info_builder)
 
     env.Clean(egg_info, env['EGG_INFO_PATH'])
 
@@ -230,3 +232,7 @@ def generate(env):
     env.AddMethod(Whl)
 
     return
+
+def exists(env):
+    return True
+
