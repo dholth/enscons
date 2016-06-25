@@ -1,13 +1,14 @@
 # Example build requirements folling build-deps-pep
 [build-system]
-requires = ["pytoml>=0.1"]
+requires = ["pytoml>=0.1", "enscons"]
 
-[tool.wheel]
+[tool.enscons]
 name="enscons"
 version="0.0.1"
 packages=['enscons']
-install_requires=[]
+install_requires=['import_scons']
 description="Tools for building Python packages with SCons"
+description_file="README"
 license="MIT"
 classifiers=[
   "Programming Language :: Python :: 2.7",
@@ -20,5 +21,5 @@ author="Daniel Holth"
 author_email="dholth@fastmail.fm"
 url="https://bitbucket.org/dholth/enscons"
 
-[tool.wheel.extras_require]
+[tool.enscons.extras_require]
 doc = ['sphinx']

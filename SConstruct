@@ -25,7 +25,7 @@
 import pytoml as toml
 import enscons
 
-metadata = dict(toml.load(open('pyproject.toml')))['tool']['wheel']
+metadata = dict(toml.load(open('pyproject.toml')))['tool']['enscons']
 
 # most specific binary, non-manylinux1 tag should be at the top of this list
 # TODO for pypy, the cffi version may be more important

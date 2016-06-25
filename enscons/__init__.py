@@ -119,7 +119,10 @@ def metadata_builder(target, source, env):
                                                 metadata.get('extras_require', {})):
             f.write("%s: %s\n" % requirement)
 
-        # XXX long description
+        if 'description_file' in metadata:
+            with codecs.open(metadata['description_file'], 'r', encoding='utf-8') as description:
+                f.write('\n\n')
+                f.write(description.read())
 
 import base64
 
@@ -137,7 +140,6 @@ def add_manifest(target, source, env):
     archive = zipfile.ZipFile(target[0].get_path(), 'a')
     lines = []
     for f in archive.namelist():
-        print("File: %s" % f)
         data = archive.read(f)
         size = len(data)
         digest = hashlib.sha256(data).digest()
@@ -158,10 +160,21 @@ Root-Is-Purelib: %s
 Tag: %s
 """ % (str(env['ROOT_IS_PURELIB']).lower(), env['WHEEL_TAG']))
 
+def wheel_metadata(env):
+    """Build the wheel metadata."""
+    metadata_source = ['pyproject.toml']
+    if env['PACKAGE_METADATA'].get('description_file', ''):
+        metadata_source.append(env['PACKAGE_METADATA'].get('description_file'))
+    metadata = env.Command(env['DIST_INFO_PATH'].File('METADATA'),
+                           metadata_source, metadata_builder)
+    wheelfile = env.Command(env['DIST_INFO_PATH'].File('WHEEL'), 'pyproject.toml', wheelmeta_builder)
+    return [metadata, wheelfile]
+
 def Whl(env, category, source, root=None):
     """
     Copy wheel members into their archive locations.
     """
+    targets = []
     in_root = ('platlib', 'purelib')[env['ROOT_IS_PURELIB']]
     if category == in_root:
         target_dir = env['WHEEL_PATH'].get_path()
@@ -170,7 +183,9 @@ def Whl(env, category, source, root=None):
     for node in env.arg2nodes(source, SCons.Node.FS.Entry):
         relpath = os.path.relpath(node.get_path(), root or '')
         args = (os.path.join(target_dir, relpath), node)
-        env.InstallAs(*args)
+        targets.append(env.InstallAs(*args))
+
+    env.Zip(target=env['WHEEL_FILE'], source=targets, ZIPROOT=env['WHEEL_PATH'])
 
 def generate(env):
 
@@ -203,7 +218,6 @@ def generate(env):
     if env['EGG_INFO_PREFIX']:
         env['EGG_INFO_PATH'] = env.Dir(env['EGG_INFO_PREFIX']).Dir(env['EGG_INFO_PATH'])
 
-    # all files under this directory will be packaged as a wheel
     env['WHEEL_PATH'] = env.Dir('#build/wheel/')
 
     env['DIST_INFO_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE']
@@ -211,16 +225,11 @@ def generate(env):
     env['WHEEL_DATA_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE']
                                                    + '-' + env['PACKAGE_VERSION'] + '.data')
 
-    env.Command(env['DIST_INFO_PATH'].File('WHEEL'), 'pyproject.toml', wheelmeta_builder)
-
     egg_info = env.Command(egg_info_targets(env), 'pyproject.toml', egg_info_builder)
 
     env.Clean(egg_info, env['EGG_INFO_PATH'])
 
     env.Alias('egg_info', egg_info)
-
-    metadata = env.Command(env['DIST_INFO_PATH'].File('METADATA'),
-                           'pyproject.toml', metadata_builder)
 
     pkg_info = env.Command('PKG-INFO', egg_info_targets(env)[0].get_path(),
                            Copy('$TARGET', '$SOURCE'))  # TARGET and SOURCE are ''?
@@ -229,11 +238,16 @@ def generate(env):
                                env['PACKAGE_VERSION'],
                                env['WHEEL_TAG'])) + '.whl'
     wheel_target_dir = env.Dir(env['WHEEL_BASE'])
-    whl = env.Zip(target=env.Dir(wheel_target_dir).File(wheel_filename),
-                  source=env['WHEEL_PATH'], ZIPROOT=env['WHEEL_PATH'])
+
+    env['WHEEL_FILE'] = env.Dir(wheel_target_dir).File(wheel_filename)
+
+    wheelmeta = wheel_metadata(env)
+
+    whl = env.Zip(target=env['WHEEL_FILE'],
+                  source=wheelmeta, ZIPROOT=env['WHEEL_PATH'])
+
     env.NoClean(whl)
     env.Alias('bdist_wheel', whl)
-
     env.AddPostAction(whl, Action(add_manifest))
 
     env.Clean(whl, env['WHEEL_PATH'])

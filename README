@@ -1,0 +1,32 @@
+enscons
+=======
+
+An experimental Python packaging system using SCons.
+
+This is intended to be the shortest possible code to build
+pip compatible wheels and sdists with SCons. Rather than adding
+build features to a Python packaging system, enscons adds Python
+packaging to a general purpose build system.
+
+using enscons
+=============
+
+Copy enscons' pyproject.toml, SConstruct, and setup.py into your
+own project.
+
+Edit pyproject.toml with your own setup.py-style arguments. Enscons
+only uses those arguments that affect the static metadata, PKG-INFO
+or METADATA, and not build-related arguments such as C extensions.
+
+Recognized arguments: name, version, description, description_file,
+url, author, author_email, license, keywords, platform, classifiers,
+install_requires, extras_require
+
+Run scons or 'python setup.py' to build all targets.
+
+Why SCons?
+==========
+
+SCons is a general purpose build system. It is pure Python, and it
+is on the cusp of becoming Python 3 compatible. These features make
+it a good candidate for an experimental Python packaging system.
