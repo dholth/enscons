@@ -26,11 +26,13 @@ from __future__ import unicode_literals, print_function
 
 from distutils import sysconfig
 from SCons.Script import Copy, Action, FindInstalledFiles, GetOption, AddOption
-import distutils.ccompiler, distutils.sysconfig, distutils.unixccompiler
-import wheel.metadata
-import os.path
-import codecs
 from pkg_resources import safe_name, safe_version, to_filename, safe_extra
+
+import codecs
+import distutils.ccompiler, distutils.sysconfig, distutils.unixccompiler
+import os.path
+import SCons.Node.FS
+import wheel.metadata
 
 def normalize_package(name):
     # XXX encourage project names to start out 'safe'
@@ -87,7 +89,7 @@ def egg_info_builder(target, source, env):
     metadata['install_requires'] = metadata.get('install_requires', [])
     metadata['extras_require'] = metadata.get('extras_require', {})
     command = Command(Distribution(env['PACKAGE_METADATA']))
-    
+
     for dnode in target:
         with open(dnode.get_path(), 'w') as f:
             if dnode.name == 'PKG-INFO':
@@ -165,13 +167,13 @@ def Whl(env, category, source, root=None):
         target_dir = env['WHEEL_PATH'].get_path()
     else:
         target_dir = env['WHEEL_DATA_PATH'].Dir(category).get_path()
-    for node in source:
+    for node in env.arg2nodes(source, SCons.Node.FS.Entry):
         relpath = os.path.relpath(node.get_path(), root or '')
         args = (os.path.join(target_dir, relpath), node)
         env.InstallAs(*args)
 
 def generate(env):
-    
+
     AddOption('--egg-base',
               dest='egg_base',
               type='string',
@@ -179,7 +181,7 @@ def generate(env):
               action='store',
               metavar='DIR',
               help='egg-info target directory')
-    
+
     AddOption('--wheel-base',
               dest='wheel_base',
               type='string',
@@ -187,10 +189,10 @@ def generate(env):
               action='store',
               metavar='DIR',
               help='wheel target directory')
-    
+
     env['EGG_INFO_PREFIX'] = GetOption('egg_base')          # pip wants this in a target dir
     env['WHEEL_BASE'] = GetOption('wheel_base') or 'dist'   # target directory for wheel
-  
+
     env['PACKAGE_NAME'] = env['PACKAGE_METADATA']['name']
     env['PACKAGE_NAME_SAFE'] = normalize_package(env['PACKAGE_NAME'])
     env['PACKAGE_VERSION'] = env['PACKAGE_METADATA']['version']
@@ -200,13 +202,13 @@ def generate(env):
     env['EGG_INFO_PATH'] = env['PACKAGE_NAME_SAFE'] + '.egg-info'
     if env['EGG_INFO_PREFIX']:
         env['EGG_INFO_PATH'] = env.Dir(env['EGG_INFO_PREFIX']).Dir(env['EGG_INFO_PATH'])
-    
+
     # all files under this directory will be packaged as a wheel
     env['WHEEL_PATH'] = env.Dir('#build/wheel/')
-    
+
     env['DIST_INFO_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE']
                                                   + '-' + env['PACKAGE_VERSION'] + '.dist-info')
-    env['WHEEL_DATA_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE'] 
+    env['WHEEL_DATA_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE']
                                                    + '-' + env['PACKAGE_VERSION'] + '.data')
 
     env.Command(env['DIST_INFO_PATH'].File('WHEEL'), 'pyproject.toml', wheelmeta_builder)
@@ -217,14 +219,14 @@ def generate(env):
 
     env.Alias('egg_info', egg_info)
 
-    metadata = env.Command(env['DIST_INFO_PATH'].File('METADATA'), 
+    metadata = env.Command(env['DIST_INFO_PATH'].File('METADATA'),
                            'pyproject.toml', metadata_builder)
 
     pkg_info = env.Command('PKG-INFO', egg_info_targets(env)[0].get_path(),
                            Copy('$TARGET', '$SOURCE'))  # TARGET and SOURCE are ''?
 
-    wheel_filename = '-'.join((env['PACKAGE_NAME_SAFE'], 
-                               env['PACKAGE_VERSION'], 
+    wheel_filename = '-'.join((env['PACKAGE_NAME_SAFE'],
+                               env['PACKAGE_VERSION'],
                                env['WHEEL_TAG'])) + '.whl'
     wheel_target_dir = env.Dir(env['WHEEL_BASE'])
     whl = env.Zip(target=env.Dir(wheel_target_dir).File(wheel_filename),
@@ -235,7 +237,7 @@ def generate(env):
     env.AddPostAction(whl, Action(add_manifest))
 
     env.Clean(whl, env['WHEEL_PATH'])
-    
+
     env.AddMethod(Whl)
 
     return
