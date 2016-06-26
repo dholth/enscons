@@ -28,7 +28,6 @@ import enscons
 metadata = dict(toml.load(open('pyproject.toml')))['tool']['enscons']
 
 # most specific binary, non-manylinux1 tag should be at the top of this list
-# TODO for pypy, the cffi version may be more important
 if False:
     import wheel.pep425tags
     for tag in wheel.pep425tags.get_supported():
@@ -38,7 +37,6 @@ if False:
 
 full_tag = 'py2.py3-none-any'
 
-# actually it should be the dictionary interface
 env = Environment(tools=['default', 'packaging', enscons.generate],
                   PACKAGE_METADATA=metadata,
                   WHEEL_TAG=full_tag,
@@ -46,7 +44,6 @@ env = Environment(tools=['default', 'packaging', enscons.generate],
 
 py_source = Glob('enscons/*.py')
 
-# XXX looks like if a file is in source twice, it's zipped twice also
 sdist = env.Package(
         NAME=env['PACKAGE_NAME'],
         VERSION=env['PACKAGE_METADATA']['version'],
