@@ -5,6 +5,9 @@
 
 import sys, subprocess, pkg_resources
 
+sys.path[0:0] = ['setup-requires']
+pkg_resources.working_set.add_entry('setup-requires')
+
 def missing_requirements(specifiers):
     for specifier in specifiers:
         try:
@@ -32,5 +35,6 @@ else:
     install_requirements(missing_requirements(requires))
 
 ### Place normal setup.py contents below ###
+
 import enscons.setup
 enscons.setup.setup()

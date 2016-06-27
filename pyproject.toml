@@ -1,6 +1,6 @@
 # Example build requirements folling build-deps-pep
 [build-system]
-requires = ["pytoml>=0.1", "enscons"]
+requires = ["pytoml>=0.1", "import_scons"]
 
 [tool.enscons]
 name="enscons"
