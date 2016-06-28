@@ -11,15 +11,18 @@ packaging to a general purpose build system.
 using enscons
 =============
 
-Copy enscons' pyproject.toml, SConstruct, and setup.py into your
-own project.
+Copy enscons' pyproject.toml, SConstruct, and setup.py into your own
+project.
 
 Edit pyproject.toml with your own setup.py-style arguments. Enscons
-only uses those arguments that affect the static metadata, PKG-INFO
-or METADATA, and not build-related arguments such as C extensions.
+only uses those arguments that affect the static metadata, PKG-INFO or
+METADATA, and not build-related arguments such as C extensions.
 
-Recognized arguments: name, version, description, description_file,
-url, author, author_email, license, keywords, platform, classifiers,
+Or try running `python -m enscons.setup2toml` next to your `setup.py`
+to extract its arguments into `pyproject.toml`.
+
+Recognized keys: name, version, description, description_file, url,
+author, author_email, license, keywords, platform, classifiers,
 install_requires, extras_require
 
 Run scons or 'python setup.py' to build all targets.

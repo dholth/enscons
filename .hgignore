@@ -12,4 +12,5 @@ dist
 __pycache__
 docs/_build
 enscons-*
+setup-requires
 PKG-INFO

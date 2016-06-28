@@ -55,3 +55,4 @@ env.NoClean(sdist)
 env.Alias('sdist', sdist)
 
 env.Whl('purelib', py_source, root='.')
+
