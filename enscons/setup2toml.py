@@ -3,7 +3,7 @@
 # Run in a directory with setup.py to get a pyproject.toml on stdout.
 # Daniel Holth <dholth@fastmail.fm>, 2016
 
-from __future__ import print_function
+from __future__ import print_function, absolute_import
 
 from collections import OrderedDict
 import setuptools, distutils.core, pprint, sys, pytoml
