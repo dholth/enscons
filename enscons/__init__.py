@@ -64,7 +64,7 @@ def egg_info_targets(env):
     Write the minimum .egg-info for pip. Full metadata will go into wheel's .dist-info
     """
     return [env.fs.Dir(env['EGG_INFO_PATH']).File(name)
-            for name in ['PKG-INFO', 'requires.txt']]
+            for name in ['PKG-INFO', 'requires.txt', 'entry_points.txt']]
 
 import setuptools.command.egg_info
 
@@ -73,7 +73,7 @@ class Command(object):
     def __init__(self, distribution):
         self.distribution = distribution
 
-    def write_or_delete_file(self, basename, filename, data):
+    def write_or_delete_file(self, basename, filename, data, _=True):
         self.data = data
 
 class Distribution(object):
@@ -86,8 +86,14 @@ def egg_info_builder(target, source, env):
     """
     # this command helps trick setuptools into doing work for us
     metadata = env['PACKAGE_METADATA']
-    metadata['install_requires'] = metadata.get('install_requires', [])
-    metadata['extras_require'] = metadata.get('extras_require', {})
+
+    def ensure_property(key, default):
+        metadata[key] = metadata.get(key, default)
+
+    ensure_property('install_requires', [])
+    ensure_property('extras_require', {})
+    ensure_property('entry_points', {})
+
     command = Command(Distribution(env['PACKAGE_METADATA']))
 
     for dnode in target:
@@ -98,6 +104,9 @@ def egg_info_builder(target, source, env):
                 f.write("Version: %s\n" % env['PACKAGE_VERSION'])
             elif dnode.name == "requires.txt":
                 setuptools.command.egg_info.write_requirements(command, dnode.name, 'spamalot')
+                f.write(command.data)
+            elif dnode.name == "entry_points.txt":
+                setuptools.command.egg_info.write_entries(command, dnode.name, 'spamalot')
                 f.write(command.data)
 
 def metadata_builder(target, source, env):
@@ -227,6 +236,11 @@ def generate(env):
 
     egg_info = env.Command(egg_info_targets(env), 'pyproject.toml', egg_info_builder)
 
+    # Copy entry_points.txt into wheel metadata
+    entry_points = egg_info[-1]
+    wheel_entry_points = env.Command(env['DIST_INFO_PATH'].File('entry_points.txt'), entry_points,
+                                     Copy('$TARGET', '$SOURCE'))
+
     env.Clean(egg_info, env['EGG_INFO_PATH'])
 
     env.Alias('egg_info', egg_info)
@@ -241,7 +255,7 @@ def generate(env):
 
     env['WHEEL_FILE'] = env.Dir(wheel_target_dir).File(wheel_filename)
 
-    wheelmeta = wheel_metadata(env)
+    wheelmeta = wheel_metadata(env) + wheel_entry_points
 
     whl = env.Zip(target=env['WHEEL_FILE'],
                   source=wheelmeta, ZIPROOT=env['WHEEL_PATH'])

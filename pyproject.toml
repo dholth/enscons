@@ -21,5 +21,8 @@ author="Daniel Holth"
 author_email="dholth@fastmail.fm"
 url="https://bitbucket.org/dholth/enscons"
 
+[tool.enscons.entry_points]
+console_scripts = ["setup2toml = enscons.setup2toml:main"]
+
 [tool.enscons.extras_require]
 doc = ['sphinx']
