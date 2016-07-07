@@ -18,8 +18,8 @@ Edit pyproject.toml with your own setup.py-style arguments. Enscons
 only uses those arguments that affect the static metadata, PKG-INFO or
 METADATA, and not build-related arguments such as C extensions.
 
-Or try running `python -m enscons.setup2toml` next to your `setup.py`
-to extract its arguments into `pyproject.toml`.
+Or try running ``python -m enscons.setup2toml`` next to your ``setup.py``
+to extract its arguments as toml.
 
 Recognized keys: name, version, description, description_file, url,
 author, author_email, license, keywords, platform, classifiers,

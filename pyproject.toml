@@ -1,10 +1,10 @@
-# Example build requirements folling build-deps-pep
+# Following the build deps PEP:
 [build-system]
 requires = ["pytoml>=0.1", "import_scons"]
 
 [tool.enscons]
 name="enscons"
-version="0.0.1"
+version="0.2.0"
 packages=['enscons']
 install_requires=['import_scons']
 description="Tools for building Python packages with SCons"

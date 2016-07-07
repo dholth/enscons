@@ -117,6 +117,8 @@ def metadata_builder(target, source, env):
         f.write("Version: %s\n" % metadata['version'])
         f.write("Sumary: %s\n" % metadata['description'])
         f.write("Home-Page: %s\n" % metadata['url'])
+        # XXX expand author to author, author-email with email.utils.parseaddr
+        # XXX Author-email can contain both author's name and e-mail
         f.write("Author: %s\n" % metadata['author'])
         f.write("Author-email: %s\n" % metadata['author_email'])
         f.write("License: %s\n" % metadata['license'])
@@ -189,7 +191,7 @@ def Whl(env, category, source, root=None):
         target_dir = env['WHEEL_PATH'].get_path()
     else:
         target_dir = env['WHEEL_DATA_PATH'].Dir(category).get_path()
-    for node in env.arg2nodes(source, SCons.Node.FS.Entry):
+    for node in env.arg2nodes(source):
         relpath = os.path.relpath(node.get_path(), root or '')
         args = (os.path.join(target_dir, relpath), node)
         targets.append(env.InstallAs(*args))
@@ -198,21 +200,24 @@ def Whl(env, category, source, root=None):
 
 def generate(env):
 
-    AddOption('--egg-base',
-              dest='egg_base',
-              type='string',
-              nargs=1,
-              action='store',
-              metavar='DIR',
-              help='egg-info target directory')
+    if not hasattr(generate, 'once'):
+        AddOption('--egg-base',
+                  dest='egg_base',
+                  type='string',
+                  nargs=1,
+                  action='store',
+                  metavar='DIR',
+                  help='egg-info target directory')
 
-    AddOption('--wheel-base',
-              dest='wheel_base',
-              type='string',
-              nargs=1,
-              action='store',
-              metavar='DIR',
-              help='wheel target directory')
+        AddOption('--wheel-base',
+                  dest='wheel_base',
+                  type='string',
+                  nargs=1,
+                  action='store',
+                  metavar='DIR',
+                  help='wheel target directory')
+
+        generate.once = True
 
     env['EGG_INFO_PREFIX'] = GetOption('egg_base')          # pip wants this in a target dir
     env['WHEEL_BASE'] = GetOption('wheel_base') or 'dist'   # target directory for wheel
