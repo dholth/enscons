@@ -55,7 +55,7 @@ sdist = env.Package(
 def find_src_root(metadata):
     """
     Determine source root from src_root or package_dir key.
-    Replaces package_dir in metadata with src_root.
+    Replace package_dir in metadata with src_root.
     Only understands a single root.
     """
     src_root = ''   # instead of '.'

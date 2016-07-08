@@ -6,7 +6,7 @@ requires = ["pytoml>=0.1", "import_scons"]
 name="enscons"
 version="0.2.0"
 packages=['enscons']
-install_requires=['import_scons', 'pytoml>=0.1']
+install_requires=['import_scons', 'pytoml>=0.1', 'setuptools', 'wheel']
 description="Tools for building Python packages with SCons"
 description_file="README"
 license="MIT"

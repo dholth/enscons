@@ -43,7 +43,7 @@ def convert_requirements(requirements, extras):
     Convert requirements from a setup()-style dictionary to Requires-Dist
     and Provides-Extra.
     """
-    # XXX this could be copied back into wheel
+    # XXX This will exist in the next wheel release
     extras[''] = requirements
     for extra, depends in extras.items():
         condition = ''
