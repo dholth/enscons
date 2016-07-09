@@ -57,6 +57,9 @@ def generate(env):
 
     # Sanity checks that shared compiler startswith normal compiler?
     compiler = ext.compiler
+    if not hasattr(compiler, 'compiler'):   # assume Windows
+        return generate_msvc(env, compiler)
+
     env.Replace(CC=compiler.compiler[0])
     env.Replace(CFLAGS=compiler.compiler[1:])
     env.Replace(CXX=compiler.compiler_cxx[0])
@@ -75,3 +78,26 @@ def generate(env):
 
     # Windows will need env['ENV'] and basically is totally different 
     # as far as distutils is concerned; different class properties
+
+def generate_msvc(env, compiler):
+    """
+    Set SCons environment from distutils msvc9compiler
+    """
+    import pprint
+    pprint.pprint(compiler.__dict__)
+    # Python 2.7 distutils does not find full compiler path.
+    # Ask Environment for correct MSVC during creation.
+    env.Replace(CC=env.File(compiler.cc))   # File helps with spaces
+    env.Replace(CFLAGS=compiler.compile_options)
+    env.Replace(CXX=env.File(compiler.cc))
+    env.Replace(LINK=env.File(compiler.linker))   # see mslink
+    env.Replace(LINKFLAGS=compiler.ldflags_static)
+    env.Replace(SHLINKFLAGS=compiler.ldflags_shared)    # see also ldflags_shared_debug
+    env.Replace(RC=env.File(compiler.rc))
+
+    # rebuild LDMODULE? Better as a tool? Use SharedLibrary?
+
+    # Some of these attributes are also available on ext
+    env.Append(CPPPATH=compiler.include_dirs)
+    env.Append(LIBPATH=compiler.library_dirs)
+    env.Append(LIBS=compiler.libraries)
