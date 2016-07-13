@@ -96,7 +96,7 @@ def egg_info_builder(target, source, env):
 
     command = Command(Distribution(env['PACKAGE_METADATA']))
 
-    for dnode in target:
+    for dnode in env.arg2nodes(target):
         with open(dnode.get_path(), 'w') as f:
             if dnode.name == 'PKG-INFO':
                 f.write("Metadata-Version: 1.1\n")
@@ -181,10 +181,50 @@ def wheel_metadata(env):
     wheelfile = env.Command(env['DIST_INFO_PATH'].File('WHEEL'), 'pyproject.toml', wheelmeta_builder)
     return [metadata, wheelfile]
 
+def init_wheel(env):
+    """
+    Create a wheel and its metadata using Environment env.
+    """
+    wheel_filename = '-'.join((env['PACKAGE_NAME_SAFE'],
+                               env['PACKAGE_VERSION'],
+                               env['WHEEL_TAG'])) + '.whl'
+    wheel_target_dir = env.Dir(env['WHEEL_BASE'])
+
+    env['WHEEL_PATH'] = env.Dir('#build/wheel/')
+
+    env['DIST_INFO_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE']
+                                                  + '-' + env['PACKAGE_VERSION'] + '.dist-info')
+    env['WHEEL_DATA_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE']
+                                                   + '-' + env['PACKAGE_VERSION'] + '.data')
+
+    env['WHEEL_FILE'] = env.Dir(wheel_target_dir).File(wheel_filename)
+
+    # Create entry_points.txt in wheel metadata
+    wheel_entry_points = []
+    if env['PACKAGE_METADATA'].get('entry_points'):
+        wheel_entry_points = [env['DIST_INFO_PATH'].File('entry_points.txt')]
+        env.Command(wheel_entry_points, 'pyproject.toml', egg_info_builder)
+
+    wheelmeta = wheel_metadata(env) + wheel_entry_points
+
+    whl = env.Zip(target=env['WHEEL_FILE'],
+                  source=wheelmeta, ZIPROOT=env['WHEEL_PATH'])
+
+    env.NoClean(whl)
+    env.Alias('bdist_wheel', whl)
+    env.AddPostAction(whl, Action(add_manifest))
+    env.Clean(whl, env['WHEEL_PATH'])
+
 def Whl(env, category, source, root=None):
     """
     Copy wheel members into their archive locations.
     """
+    # Create target the first time this is called
+    try:
+        whl = env['WHEEL_FILE']
+    except KeyError:
+        whl = init_wheel(env)
+
     targets = []
     in_root = ('platlib', 'purelib')[env['ROOT_IS_PURELIB']]
     if category == in_root:
@@ -196,7 +236,7 @@ def Whl(env, category, source, root=None):
         args = (os.path.join(target_dir, relpath), node)
         targets.append(env.InstallAs(*args))
 
-    env.Zip(target=env['WHEEL_FILE'], source=targets, ZIPROOT=env['WHEEL_PATH'])
+    return env.Zip(target=whl, source=targets, ZIPROOT=env['WHEEL_PATH'])
 
 def generate(env):
 
@@ -217,10 +257,19 @@ def generate(env):
                   metavar='DIR',
                   help='wheel target directory')
 
+        AddOption('--dist-dir',
+                  dest='dist_dir',
+                  type='string',
+                  nargs=1,
+                  action='store',
+                  metavar='DIR',
+                  help='sdist target directory')
+
         generate.once = True
 
     env['EGG_INFO_PREFIX'] = GetOption('egg_base')          # pip wants this in a target dir
     env['WHEEL_BASE'] = GetOption('wheel_base') or 'dist'   # target directory for wheel
+    env['DIST_BASE'] = GetOption('dist_dir') or 'dist'
 
     env['PACKAGE_NAME'] = env['PACKAGE_METADATA']['name']
     env['PACKAGE_NAME_SAFE'] = normalize_package(env['PACKAGE_NAME'])
@@ -232,19 +281,7 @@ def generate(env):
     if env['EGG_INFO_PREFIX']:
         env['EGG_INFO_PATH'] = env.Dir(env['EGG_INFO_PREFIX']).Dir(env['EGG_INFO_PATH'])
 
-    env['WHEEL_PATH'] = env.Dir('#build/wheel/')
-
-    env['DIST_INFO_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE']
-                                                  + '-' + env['PACKAGE_VERSION'] + '.dist-info')
-    env['WHEEL_DATA_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE']
-                                                   + '-' + env['PACKAGE_VERSION'] + '.data')
-
     egg_info = env.Command(egg_info_targets(env), 'pyproject.toml', egg_info_builder)
-
-    # Copy entry_points.txt into wheel metadata
-    entry_points = egg_info[-1]
-    wheel_entry_points = env.Command(env['DIST_INFO_PATH'].File('entry_points.txt'), entry_points,
-                                     Copy('$TARGET', '$SOURCE'))
 
     env.Clean(egg_info, env['EGG_INFO_PATH'])
 
@@ -253,28 +290,7 @@ def generate(env):
     pkg_info = env.Command('PKG-INFO', egg_info_targets(env)[0].get_path(),
                            Copy('$TARGET', '$SOURCE'))  # TARGET and SOURCE are ''?
 
-    wheel_filename = '-'.join((env['PACKAGE_NAME_SAFE'],
-                               env['PACKAGE_VERSION'],
-                               env['WHEEL_TAG'])) + '.whl'
-    wheel_target_dir = env.Dir(env['WHEEL_BASE'])
-
-    env['WHEEL_FILE'] = env.Dir(wheel_target_dir).File(wheel_filename)
-
-    wheelmeta = wheel_metadata(env) + wheel_entry_points
-
-    whl = env.Zip(target=env['WHEEL_FILE'],
-                  source=wheelmeta, ZIPROOT=env['WHEEL_PATH'])
-
-    env.NoClean(whl)
-    env.Alias('bdist_wheel', whl)
-    env.AddPostAction(whl, Action(add_manifest))
-
-    env.Clean(whl, env['WHEEL_PATH'])
-
     env.AddMethod(Whl)
 
-    return
-
-def exists(env):
+def exists(env):    # only used if enscons is found on SCons search path
     return True
-

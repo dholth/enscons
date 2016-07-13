@@ -32,6 +32,8 @@ def setup():
     parser = argparse.ArgumentParser(description='setup.py arguments')
     parser.add_argument('--egg-base', action="store", dest="base")
     parser.add_argument('--python-tag', action="store", dest="python_tag")
+    parser.add_argument('--formats', type=str, action="store", dest="sdist_formats")
+    parser.add_argument('--dist-dir', type=str, action="store", dest="sdist_dir")
     parser.add_argument('-d', action="store", dest="destination")
     parser.add_argument('--no-deps', action="store_true", dest="no_deps")
     args, unknown = parser.parse_known_args(sys.argv)
@@ -43,15 +45,18 @@ def setup():
 
     # sys.argv[0] is -c not 'setup.py' with pip
 
-    if 'egg_info' in unknown and args.base:
-        sys.argv.append("=".join(['--egg-base', args.base]))
+    # Convert certain arguments into =-separated format
+    for flag, arg in (
+            ('--dist-dir', 'sdist_dir'), 
+            ('--wheel-base', 'destination'),
+            ('--egg-base', 'base'),
+            ):
+        if getattr(args, arg):
+            sys.argv.append('='.join((flag, getattr(args, arg))))
 
     if 'develop' in unknown:
         develop('.')
         sys.exit(0)
-
-    if args.destination:
-        sys.argv.append('='.join(['--wheel-base', args.destination]))
 
     sys.path[0:0] = ['setup-requires']
     pkg_resources.working_set.add_entry('setup-requires')

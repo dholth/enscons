@@ -141,11 +141,14 @@ def main():
         if key in setup_.arguments:
             ordered_arguments[key] = setup_.arguments.pop(key)
 
-    if isinstance(ordered_arguments['keywords'], str):
+    if isinstance(ordered_arguments.get('keywords'), str):
         ordered_arguments['keywords'] = ordered_arguments['keywords'].split()
 
     if isinstance(ordered_arguments.get('install_requires'), str):
         ordered_arguments['install_requires'] = [ordered_arguments['install_requires']]
+
+    if isinstance(ordered_arguments.get('py_modules'), str):
+        ordered_arguments['py_modules'] = [ordered_arguments['py_modules']]        
 
     find_src_root(ordered_arguments)
 
