@@ -5,7 +5,7 @@ def develop(path):
     """
     Add distribution on path to easy-install.pth for development, like setup.py develop.
     A single egg-info should exist in path.
-    This may work fine with .dist-info
+    This may work fine with a .dist-info directory in place of .egg-info.
     """
     import os, wheel.paths
     from setuptools.command import easy_install
@@ -36,6 +36,10 @@ def setup():
     parser.add_argument('--dist-dir', type=str, action="store", dest="sdist_dir")
     parser.add_argument('-d', action="store", dest="destination")
     parser.add_argument('--no-deps', action="store_true", dest="no_deps")
+    parser.add_argument('--single-version-externally-managed', action="store_true")
+    parser.add_argument('--compile', action="store_true")
+    parser.add_argument('--install-headers', action="store")
+    parser.add_argument('--record', action="store")
     args, unknown = parser.parse_known_args(sys.argv)
 
     sys.argv = unknown # pass along to SCons
@@ -54,12 +58,23 @@ def setup():
         if getattr(args, arg):
             sys.argv.append('='.join((flag, getattr(args, arg))))
 
-    if 'develop' in unknown:
+    if 'develop' in sys.argv:   # XXX doesn't handle src_root
         develop('.')
-        sys.exit(0)
+        sys.argv.remove('develop')
 
     sys.path[0:0] = ['setup-requires']
     pkg_resources.working_set.add_entry('setup-requires')
 
     import SCons.Script
     SCons.Script.main()
+
+# Command used when installing from a source directory:
+"""
+"python3.5 -u -c "import setuptools, tokenize
+__file__='/tmp/pip-6s1w5sd2-build/setup.py'
+exec(compile(getattr(tokenize, 'open', open)(__file__).read().replace('\r\n', '\n'), __file__, 'exec'))" 
+install --record /tmp/pip-795f8wqp-record/install-record.txt 
+--single-version-externally-managed 
+--compile 
+--install-headers /home/dholth/prog/cryptacular/.tox/py35/include/site/python3.5/enscons
+"""

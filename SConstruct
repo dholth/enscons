@@ -24,6 +24,7 @@
 
 import pytoml as toml
 import enscons
+import sys
 
 metadata = dict(toml.load(open('pyproject.toml')))['tool']['enscons']
 
@@ -54,5 +55,11 @@ sdist = env.Package(
 env.NoClean(sdist)
 env.Alias('sdist', sdist)
 
-env.Whl('purelib', py_source, root='.')
+whl = env.Whl('purelib', py_source, root='.')
 
+install = env.Command("#DUMMY", whl, 
+    ' '.join([sys.executable, '-m', 'pip', 'install', '--no-deps', '$SOURCE']))
+env.Alias('install', install)
+env.AlwaysBuild(install)
+
+env.Default(whl)

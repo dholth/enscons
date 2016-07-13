@@ -215,6 +215,8 @@ def init_wheel(env):
     env.AddPostAction(whl, Action(add_manifest))
     env.Clean(whl, env['WHEEL_PATH'])
 
+    return whl
+
 def Whl(env, category, source, root=None):
     """
     Copy wheel members into their archive locations.
