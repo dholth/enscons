@@ -34,6 +34,23 @@ import os.path
 import SCons.Node.FS
 import wheel.metadata
 
+def get_binary_tag():
+    """
+    Return most-specific binary extension wheel tag 'interpreter-abi-arch'
+    """
+    import wheel.pep425tags
+    for tag in wheel.pep425tags.get_supported():
+        full_tag = '-'.join(tag)
+        if not 'manylinux' in tag:
+            break
+    return '-'.join(full_tag)
+
+def get_universal_tag():
+    """
+    Return 'py2.py3-none-any'
+    """
+    return 'py2.py3-none-any'
+
 def normalize_package(name):
     # XXX encourage project names to start out 'safe'
     return to_filename(safe_name(name))
@@ -142,6 +159,7 @@ def urlsafe_b64encode(data):
     return base64.urlsafe_b64encode(data).rstrip(b'=')
 
 import wheel.bdist_wheel
+
 def add_manifest(target, source, env):
     """
     Add the wheel manifest.
@@ -191,41 +209,39 @@ def init_wheel(env):
     wheel_target_dir = env.Dir(env['WHEEL_BASE'])
 
     env['WHEEL_PATH'] = env.Dir('#build/wheel/')
-
     env['DIST_INFO_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE']
-                                                  + '-' + env['PACKAGE_VERSION'] + '.dist-info')
+                                                  + '-' + env['PACKAGE_VERSION'] + '.dist-info')                                                  
     env['WHEEL_DATA_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE']
                                                    + '-' + env['PACKAGE_VERSION'] + '.data')
 
-    env['WHEEL_FILE'] = env.Dir(wheel_target_dir).File(wheel_filename)
+    whl = env['WHEEL_FILE'] = env.Dir(wheel_target_dir).File(wheel_filename)
 
-    # Create entry_points.txt in wheel metadata
+    # Write WHEEL and METADATA
+    wheelmeta = wheel_metadata(env) 
+
+    # Write entry_points.txt if needed
     wheel_entry_points = []
     if env['PACKAGE_METADATA'].get('entry_points'):
         wheel_entry_points = [env['DIST_INFO_PATH'].File('entry_points.txt')]
         env.Command(wheel_entry_points, 'pyproject.toml', egg_info_builder)
 
-    wheelmeta = wheel_metadata(env) + wheel_entry_points
+    targets = wheelmeta + wheel_entry_points
 
-    whl = env.Zip(target=env['WHEEL_FILE'],
-                  source=wheelmeta, ZIPROOT=env['WHEEL_PATH'])
-
-    env.NoClean(whl)
-    env.Alias('bdist_wheel', whl)
-    env.AddPostAction(whl, Action(add_manifest))
-    env.Clean(whl, env['WHEEL_PATH'])
-
-    return whl
+    return targets
 
 def Whl(env, category, source, root=None):
     """
     Copy wheel members into their archive locations.
+    category: 'purelib', 'platlib', 'headers', 'data' etc.
+    source: files belonging to category
+    root: relative to root directory i.e. '.', 'src'
     """
     # Create target the first time this is called
+    wheelmeta = []
     try:
-        whl = env['WHEEL_FILE']
+        env['WHEEL_FILE']
     except KeyError:
-        whl = init_wheel(env)
+        wheelmeta = init_wheel(env)
 
     targets = []
     in_root = ('platlib', 'purelib')[env['ROOT_IS_PURELIB']]
@@ -238,9 +254,41 @@ def Whl(env, category, source, root=None):
         args = (os.path.join(target_dir, relpath), node)
         targets.append(env.InstallAs(*args))
 
-    return env.Zip(target=whl, source=targets, ZIPROOT=env['WHEEL_PATH'])
+    return targets + wheelmeta
+
+def WhlFile(env, source=None):
+    """
+    Archive wheel members collected from Whl(...)
+    """
+    whl = env.Zip(target=env['WHEEL_FILE'], source=source, ZIPROOT=env['WHEEL_PATH'])
+
+    env.NoClean(whl)
+    env.Alias('bdist_wheel', whl)
+    env.AddPostAction(whl, Action(add_manifest))
+    env.Clean(whl, env['WHEEL_PATH'])
+
+    return whl
+
+def SDist(env, target=None, source=None):
+    """
+    Call env.Package() with sdist filename inferred from
+    env['PACKAGE_METADATA'] etc.
+    """
+    if not target:
+        target = ['dist/' + env['PACKAGE_NAME'] + '-' + env['PACKAGE_VERSION']]
+    sdist = env.Package(
+        NAME=env['PACKAGE_METADATA']['name'],
+        VERSION=env['PACKAGE_METADATA']['version'],
+        PACKAGETYPE='src_zip',
+        target=target,
+        source=source,
+        )
+    return sdist
 
 def generate(env):
+    """
+    Set up enscons in Environment env
+    """
 
     if not hasattr(generate, 'once'):
         AddOption('--egg-base',
@@ -269,6 +317,11 @@ def generate(env):
 
         generate.once = True
 
+    try:
+        env['ROOT_IS_PURELIB']
+    except KeyError:
+        env['ROOT_IS_PURELIB'] = env['WHEEL_TAG'].endswith('none-any')
+
     env['EGG_INFO_PREFIX'] = GetOption('egg_base')          # pip wants this in a target dir
     env['WHEEL_BASE'] = GetOption('wheel_base') or 'dist'   # target directory for wheel
     env['DIST_BASE'] = GetOption('dist_dir') or 'dist'
@@ -293,6 +346,8 @@ def generate(env):
                            Copy('$TARGET', '$SOURCE'))  # TARGET and SOURCE are ''?
 
     env.AddMethod(Whl)
+    env.AddMethod(WhlFile)
+    env.AddMethod(SDist)
 
 def exists(env):    # only used if enscons is found on SCons search path
     return True

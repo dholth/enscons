@@ -28,38 +28,25 @@ import sys
 
 metadata = dict(toml.load(open('pyproject.toml')))['tool']['enscons']
 
-# most specific binary, non-manylinux1 tag should be at the top of this list
-if False:
-    import wheel.pep425tags
-    for tag in wheel.pep425tags.get_supported():
-        full_tag = '-'.join(tag)
-        if not 'manylinux' in tag:
-            break
-
 full_tag = 'py2.py3-none-any'
 
 env = Environment(tools=['default', 'packaging', enscons.generate],
                   PACKAGE_METADATA=metadata,
                   WHEEL_TAG=full_tag,
-                  ROOT_IS_PURELIB=True)
+                  )
 
 py_source = Glob('enscons/*.py')
 
-sdist = env.Package(
-        NAME=env['PACKAGE_NAME'],
-        VERSION=env['PACKAGE_METADATA']['version'],
-        PACKAGETYPE='src_zip',
-        target=['dist/' + env['PACKAGE_NAME'] + '-' + env['PACKAGE_VERSION']],
-        source=FindSourceFiles() + ['PKG-INFO', 'setup.py'],
-        )
+sdist = env.SDist(source=FindSourceFiles() + ['PKG-INFO', 'setup.py', 'README', 'CHANGES'])
 env.NoClean(sdist)
 env.Alias('sdist', sdist)
 
-whl = env.Whl('purelib', py_source, root='.')
+purelib = env.Whl('purelib', py_source, root='.')
+whl = env.WhlFile(purelib)
 
 install = env.Command("#DUMMY", whl, 
     ' '.join([sys.executable, '-m', 'pip', 'install', '--no-deps', '$SOURCE']))
 env.Alias('install', install)
 env.AlwaysBuild(install)
 
-env.Default(whl)
+env.Default(whl, sdist)
