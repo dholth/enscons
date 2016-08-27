@@ -4,11 +4,11 @@ requires = ["pytoml>=0.1", "import_scons"]
 
 [tool.enscons]
 name="enscons"
-version="0.4.0"
+version="0.5.0"
 packages=['enscons']
 install_requires=['import_scons', 'pytoml>=0.1', 'setuptools', 'wheel']
 description="Tools for building Python packages with SCons"
-description_file="README"
+description_file="README.rst"
 license="MIT"
 classifiers=[
   "Programming Language :: Python :: 2.7",

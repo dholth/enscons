@@ -37,7 +37,7 @@ env = Environment(tools=['default', 'packaging', enscons.generate],
 
 py_source = Glob('enscons/*.py')
 
-sdist = env.SDist(source=FindSourceFiles() + ['PKG-INFO', 'setup.py', 'README', 'CHANGES'])
+sdist = env.SDist(source=FindSourceFiles() + ['PKG-INFO', 'setup.py', 'README.rst', 'CHANGES'])
 env.NoClean(sdist)
 env.Alias('sdist', sdist)
 
