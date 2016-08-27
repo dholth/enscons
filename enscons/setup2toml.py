@@ -27,29 +27,27 @@ for tag in wheel.pep425tags.get_supported():
     if not 'manylinux' in tag:
         break
 
-# full_tag = py2.py3-none-any # pure Python packages compatible with 2+3
+# full_tag = 'py2.py3-none-any' # pure Python packages compatible with 2+3
 
 env = Environment(tools=['default', 'packaging', enscons.generate],
                   PACKAGE_METADATA=metadata,
                   WHEEL_TAG=full_tag,
-                  ROOT_IS_PURELIB=False)
+                  ROOT_IS_PURELIB=full_tag.endswith('-any'))
 
 # Only *.py is included automatically by setup2toml.
 # Add extra 'purelib' files or package_data here.
 py_source = {py_source}
 
-env.Whl('purelib', py_source, root={src_root})
+purelib = env.Whl('purelib', py_source, root={src_root})
+whl = env.WhlFile(purelib)
 
 # Add automatic source files, plus any other needed files.
 sdist_source=FindSourceFiles() + ['PKG-INFO', 'setup.py']
 
-sdist = env.Package(
-        NAME=env['PACKAGE_NAME'],
-        VERSION=env['PACKAGE_METADATA']['version'],
-        PACKAGETYPE='src_targz',
-        source=sdist_source,
-        target=['/'.join(['dist', env['PACKAGE_NAME'] + '-' + env['PACKAGE_VERSION'] + '.tar.gz'])],
-        )
+sdist = env.SDist(source=sdist_source)
+
+env.NoClean(sdist)
+env.Alias('sdist', sdist)
 """
 
 def find_src_root(metadata):

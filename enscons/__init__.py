@@ -275,7 +275,8 @@ def SDist(env, target=None, source=None):
     env['PACKAGE_METADATA'] etc.
     """
     if not target:
-        target = ['dist/' + env['PACKAGE_NAME'] + '-' + env['PACKAGE_VERSION']]
+        target = [os.path.join(env['DIST_BASE'],
+            env['PACKAGE_NAME'] + '-' + env['PACKAGE_VERSION'])]
     sdist = env.Package(
         NAME=env['PACKAGE_METADATA']['name'],
         VERSION=env['PACKAGE_METADATA']['version'],
