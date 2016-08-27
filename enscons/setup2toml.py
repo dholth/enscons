@@ -110,7 +110,7 @@ def write_no_clobber(filename, contents):
                 sys.stderr.write("Not overwriting existing file %s\n" % filename)
             else:
                 sys.stderr.write("Existing file %s is up to date\n" % filename)
-    except OSError as e:
+    except (OSError, IOError) as e:
         if not e.errno == errno.ENOENT:
             raise
         with codecs.open(filename, 'w', encoding='utf-8') as f:
