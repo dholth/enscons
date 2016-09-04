@@ -12,7 +12,12 @@ def develop(path):
 
     pathdir = wheel.paths.get_install_paths('enscons')['purelib']
     pathfile = os.path.join(pathdir, 'easy-install.pth')
+    
     pthdistributions = easy_install.PthDistributions(pathfile)
+    # distribution = Distribution(
+    #     target,
+    #     PathMetadata(target, os.path.abspath(ei.egg_info)),
+    #     project_name=ei.egg_name)
     distribution = list(pkg_resources.find_distributions(path, True))[0]
     pthdistributions.add(distribution)
     pthdistributions.save()
