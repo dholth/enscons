@@ -27,6 +27,7 @@ from __future__ import unicode_literals, print_function
 from distutils import sysconfig
 from SCons.Script import Copy, Action, FindInstalledFiles, GetOption, AddOption
 from pkg_resources import safe_name, safe_version, to_filename, safe_extra
+from collections import defaultdict
 
 import codecs
 import distutils.ccompiler, distutils.sysconfig, distutils.unixccompiler
@@ -132,6 +133,8 @@ def metadata_builder(target, source, env):
         f.write("Metadata-Version: 2.0\n")
         f.write("Name: %s\n" % metadata['name'])
         f.write("Version: %s\n" % metadata['version'])
+        # Optional values:
+        metadata = defaultdict(lambda: 'UNKNOWN', **metadata)
         f.write("Sumary: %s\n" % metadata['description'])
         f.write("Home-Page: %s\n" % metadata['url'])
         # XXX expand author to author, author-email with email.utils.parseaddr
@@ -139,6 +142,8 @@ def metadata_builder(target, source, env):
         f.write("Author: %s\n" % metadata['author'])
         f.write("Author-email: %s\n" % metadata['author_email'])
         f.write("License: %s\n" % metadata['license'])
+        if not isinstance(metadata['keywords'], list):
+            metadata['keywords'] = [metadata['keywords']]
         f.write("Keywords: %s\n" % " ".join(metadata['keywords']))
         f.write("Platform: %s\n" % metadata.get('platform', 'UNKNOWN'))
         for classifier in metadata.get('classifiers', []):
@@ -330,6 +335,10 @@ def generate(env):
     env['PACKAGE_NAME'] = env['PACKAGE_METADATA']['name']
     env['PACKAGE_NAME_SAFE'] = normalize_package(env['PACKAGE_NAME'])
     env['PACKAGE_VERSION'] = env['PACKAGE_METADATA']['version']
+
+    # place egg_info in src_root if defined
+    if not env['EGG_INFO_PREFIX'] and env['PACKAGE_METADATA'].get('src_root'):
+        env['EGG_INFO_PREFIX'] = env['PACKAGE_METADATA']['src_root']
 
     # Development .egg-info has no version number. Needs to have
     # underscore _ and not hyphen -

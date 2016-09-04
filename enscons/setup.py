@@ -58,8 +58,13 @@ def setup():
         if getattr(args, arg):
             sys.argv.append('='.join((flag, getattr(args, arg))))
 
-    if 'develop' in sys.argv:   # XXX doesn't handle src_root
-        develop('.')
+    if 'develop' in sys.argv:
+        src_root = '.'
+        import pytoml
+        with open('pyproject.toml', 'r') as pyproject:
+            metadata = pytoml.load(pyproject)
+            src_root = metadata['tool']['enscons'].get('src_root', src_root)
+        develop(src_root)
         sys.argv.remove('develop')
 
     sys.path[0:0] = ['setup-requires']
