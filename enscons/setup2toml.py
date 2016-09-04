@@ -22,10 +22,7 @@ metadata = dict(toml.load(open('pyproject.toml')))['tool']['enscons']
 
 # most specific binary, non-manylinux1 tag should be at the top of this list
 import wheel.pep425tags
-for tag in wheel.pep425tags.get_supported():
-    full_tag = '-'.join(tag)
-    if not 'manylinux' in tag:
-        break
+full_tag = '-'.join(next(tag for tag in wheel.pep425tags.get_supported() if not 'manylinux' in tag))
 
 # full_tag = 'py2.py3-none-any' # pure Python packages compatible with 2+3
 
