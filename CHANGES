@@ -1,0 +1,17 @@
+0.6.0
+-----
+- Tolerate missing optional metadata (written as 'UNKNOWN')
+- Support src_root for sources in ./src/ etc.
+
+0.5.0
+-----
+- Update enscons.setup2toml
+- Support --dist-dir as needed by tox (write sdist to given directory)
+- Improve documentation
+
+0.4.0
+-----
+- Introduce env.Whl() to gather wheel members and env.WhlFile() to
+  finish the archive
+- Add env.SDist(source=...) to automatically name source archives.
+
