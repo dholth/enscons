@@ -145,7 +145,7 @@ def metadata_builder(target, source, env):
         if not isinstance(metadata['keywords'], list):
             metadata['keywords'] = [metadata['keywords']]
         f.write("Keywords: %s\n" % " ".join(metadata['keywords']))
-        f.write("Platform: %s\n" % metadata.get('platform', 'UNKNOWN'))
+        f.write("Platform: %s\n" % ['platform'])
         for classifier in metadata.get('classifiers', []):
             f.write("Classifier: %s\n" % classifier)
         for requirement in convert_requirements(metadata.get('install_requires', []),
