@@ -40,11 +40,7 @@ def get_binary_tag():
     Return most-specific binary extension wheel tag 'interpreter-abi-arch'
     """
     import wheel.pep425tags
-    for tag in wheel.pep425tags.get_supported():
-        full_tag = '-'.join(tag)
-        if not 'manylinux' in tag:
-            break
-    return '-'.join(full_tag)
+    return '-'.join(next(tag for tag in wheel.pep425tags.get_supported() if not 'manylinux' in tag))
 
 def get_universal_tag():
     """
@@ -145,7 +141,7 @@ def metadata_builder(target, source, env):
         if not isinstance(metadata['keywords'], list):
             metadata['keywords'] = [metadata['keywords']]
         f.write("Keywords: %s\n" % " ".join(metadata['keywords']))
-        f.write("Platform: %s\n" % ['platform'])
+        f.write("Platform: %s\n" % metadata['platform'])
         for classifier in metadata.get('classifiers', []):
             f.write("Classifier: %s\n" % classifier)
         for requirement in convert_requirements(metadata.get('install_requires', []),
