@@ -207,18 +207,18 @@ def init_wheel(env):
     wheel_filename = '-'.join((env['PACKAGE_NAME_SAFE'],
                                env['PACKAGE_VERSION'],
                                env['WHEEL_TAG'])) + '.whl'
-    wheel_target_dir = env.Dir(env['WHEEL_BASE'])
+    wheel_target_dir = env.Dir(env['WHEEL_DIR'])
 
     env['WHEEL_PATH'] = env.Dir('#build/wheel/')
     env['DIST_INFO_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE']
-                                                  + '-' + env['PACKAGE_VERSION'] + '.dist-info')                                                  
+                                                  + '-' + env['PACKAGE_VERSION'] + '.dist-info')
     env['WHEEL_DATA_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE']
                                                    + '-' + env['PACKAGE_VERSION'] + '.data')
 
     whl = env['WHEEL_FILE'] = env.Dir(wheel_target_dir).File(wheel_filename)
 
     # Write WHEEL and METADATA
-    wheelmeta = wheel_metadata(env) 
+    wheelmeta = wheel_metadata(env)
 
     # Write entry_points.txt if needed
     wheel_entry_points = []
@@ -275,13 +275,19 @@ def SDist(env, target=None, source=None):
     Call env.Package() with sdist filename inferred from
     env['PACKAGE_METADATA'] etc.
     """
+
+    import SCons.Tool.packaging
+    src_type = 'src_zip'
+    if 'src_sdist' in SCons.Tool.packaging.__all__:
+        src_type = 'src_sdist'
+
     if not target:
         target = [os.path.join(env['DIST_BASE'],
             env['PACKAGE_NAME'] + '-' + env['PACKAGE_VERSION'])]
     sdist = env.Package(
         NAME=env['PACKAGE_METADATA']['name'],
         VERSION=env['PACKAGE_METADATA']['version'],
-        PACKAGETYPE='src_zip',
+        PACKAGETYPE=src_type,
         target=target,
         source=source,
         )
@@ -292,6 +298,9 @@ def generate(env):
     Set up enscons in Environment env
     """
 
+    import SCons.Tool.pytar
+    SCons.Tool.pytar.generate(env)
+
     if not hasattr(generate, 'once'):
         AddOption('--egg-base',
                   dest='egg_base',
@@ -301,8 +310,8 @@ def generate(env):
                   metavar='DIR',
                   help='egg-info target directory')
 
-        AddOption('--wheel-base',
-                  dest='wheel_base',
+        AddOption('--wheel-dir',
+                  dest='wheel_dir',
                   type='string',
                   nargs=1,
                   action='store',
@@ -325,7 +334,7 @@ def generate(env):
         env['ROOT_IS_PURELIB'] = env['WHEEL_TAG'].endswith('none-any')
 
     env['EGG_INFO_PREFIX'] = GetOption('egg_base')          # pip wants this in a target dir
-    env['WHEEL_BASE'] = GetOption('wheel_base') or 'dist'   # target directory for wheel
+    env['WHEEL_DIR'] = GetOption('wheel_dir') or 'dist'   # target directory for wheel
     env['DIST_BASE'] = GetOption('dist_dir') or 'dist'
 
     env['PACKAGE_NAME'] = env['PACKAGE_METADATA']['name']

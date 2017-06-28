@@ -4,7 +4,7 @@ requires = ["pytoml>=0.1", "import_scons"]
 
 [tool.enscons]
 name="enscons"
-version="0.6.0"
+version="0.7.0"
 packages=['enscons']
 install_requires=['import_scons', 'pytoml>=0.1', 'setuptools', 'wheel']
 description="Tools for building Python packages with SCons"
@@ -15,6 +15,7 @@ classifiers=[
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.4",
   "Programming Language :: Python :: 3.5",
+  "Programming Language :: Python :: 3.6",
 ]
 keywords=["packaging", "wheel"]
 author="Daniel Holth"

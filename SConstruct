@@ -44,7 +44,7 @@ env.Alias('sdist', sdist)
 purelib = env.Whl('purelib', py_source, root='.')
 whl = env.WhlFile(purelib)
 
-install = env.Command("#DUMMY", whl, 
+install = env.Command("#DUMMY", whl,
     ' '.join([sys.executable, '-m', 'pip', 'install', '--no-deps', '$SOURCE']))
 env.Alias('install', install)
 env.AlwaysBuild(install)

@@ -12,7 +12,7 @@ def develop(path):
 
     pathdir = wheel.paths.get_install_paths('enscons')['purelib']
     pathfile = os.path.join(pathdir, 'easy-install.pth')
-    
+
     pthdistributions = easy_install.PthDistributions(pathfile)
     # distribution = Distribution(
     #     target,
@@ -56,8 +56,8 @@ def setup():
 
     # Convert certain arguments into =-separated format
     for flag, arg in (
-            ('--dist-dir', 'sdist_dir'), 
-            ('--wheel-base', 'destination'),
+            ('--dist-dir', 'sdist_dir'),
+            ('--wheel-dir', 'destination'),
             ('--egg-base', 'base'),
             ):
         if getattr(args, arg):
@@ -82,9 +82,9 @@ def setup():
 """
 "python3.5 -u -c "import setuptools, tokenize
 __file__='/tmp/pip-6s1w5sd2-build/setup.py'
-exec(compile(getattr(tokenize, 'open', open)(__file__).read().replace('\r\n', '\n'), __file__, 'exec'))" 
-install --record /tmp/pip-795f8wqp-record/install-record.txt 
---single-version-externally-managed 
---compile 
+exec(compile(getattr(tokenize, 'open', open)(__file__).read().replace('\r\n', '\n'), __file__, 'exec'))"
+install --record /tmp/pip-795f8wqp-record/install-record.txt
+--single-version-externally-managed
+--compile
 --install-headers /home/dholth/prog/cryptacular/.tox/py35/include/site/python3.5/enscons
 """
