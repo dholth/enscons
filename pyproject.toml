@@ -1,6 +1,7 @@
 # Following the build deps PEP:
 [build-system]
 requires = ["pytoml>=0.1", "import_scons"]
+build-backend = "enscons.api"
 
 [tool.enscons]
 name="enscons"
@@ -27,3 +28,4 @@ console_scripts = ["setup2toml = enscons.setup2toml:main"]
 
 [tool.enscons.extras_require]
 doc = ['sphinx']
+cli = ['click']

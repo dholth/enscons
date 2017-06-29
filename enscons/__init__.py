@@ -298,8 +298,12 @@ def generate(env):
     Set up enscons in Environment env
     """
 
-    import SCons.Tool.pytar
-    SCons.Tool.pytar.generate(env)
+    try:
+        # pure-Python tar for SCons
+        import SCons.Tool.pytar
+        SCons.Tool.pytar.generate(env)
+    except ImportError:
+        pass
 
     if not hasattr(generate, 'once'):
         AddOption('--egg-base',
