@@ -5,6 +5,7 @@
 
 from __future__ import print_function, absolute_import
 
+import runpy
 from collections import OrderedDict
 import setuptools, distutils.core
 import sys, os, codecs, errno
@@ -122,7 +123,7 @@ def main():
 
     sys.path[0:0] = '.'
 
-    import setup
+    runpy.run_module("setup", run_name="__main__")
 
     # Convert the keys that enscons uses and a few more that are serializable.
     key_order = ['name', 'version', 'description', 'classifiers', 'keywords',
@@ -143,7 +144,7 @@ def main():
         ordered_arguments['install_requires'] = [ordered_arguments['install_requires']]
 
     if isinstance(ordered_arguments.get('py_modules'), str):
-        ordered_arguments['py_modules'] = [ordered_arguments['py_modules']]        
+        ordered_arguments['py_modules'] = [ordered_arguments['py_modules']]
 
     find_src_root(ordered_arguments)
 
