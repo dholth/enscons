@@ -209,7 +209,8 @@ def init_wheel(env):
                                env['WHEEL_TAG'])) + '.whl'
     wheel_target_dir = env.Dir(env['WHEEL_DIR'])
 
-    env['WHEEL_PATH'] = env.Dir('#build/wheel/')
+    # initial # here in path means its relative to top-level sconstruct
+    env['WHEEL_PATH'] = env.get('WHEEL_PATH', env.Dir('#build/wheel/'))
     env['DIST_INFO_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE']
                                                   + '-' + env['PACKAGE_VERSION'] + '.dist-info')
     env['WHEEL_DATA_PATH'] = env['WHEEL_PATH'].Dir(env['PACKAGE_NAME_SAFE']
