@@ -7,10 +7,11 @@ def develop(path):
     A single egg-info should exist in path.
     This may work fine with a .dist-info directory in place of .egg-info.
     """
-    import os, wheel.paths
+    import os
     from setuptools.command import easy_install
+    from . import paths
 
-    pathdir = wheel.paths.get_install_paths('enscons')['purelib']
+    pathdir = paths.get_install_paths('enscons')['purelib']
     pathfile = os.path.join(pathdir, 'easy-install.pth')
 
     pthdistributions = easy_install.PthDistributions(pathfile)

@@ -278,9 +278,7 @@ def SDist(env, target=None, source=None):
     """
 
     import SCons.Tool.packaging
-    src_type = 'src_zip'
-    if 'src_sdist' in SCons.Tool.packaging.__all__:
-        src_type = 'src_sdist'
+    src_type = 'src_targz'
 
     if not target:
         target = [os.path.join(env['DIST_BASE'],

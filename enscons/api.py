@@ -19,12 +19,8 @@ def prepare_wheel_metadata(metadata_directory, settings):
     return  # basename of wheel...
 
 
-# def prepare_wheel_build_files(build_directory, settings):
-
-
 def build_wheel(wheel_directory, settings, metadata_directory=None):
     sys.argv[1:] = ['--wheel-dir=' + wheel_directory, 'bdist_wheel']
-    print sys.argv
     try:
         SCons.Script.Main.main()
     except SystemExit as e:
@@ -41,7 +37,6 @@ def get_build_sdist_requires(settings):
 
 def build_sdist(sdist_directory, settings):
     sys.argv[1:] = ['--dist-dir=' + sdist_directory, 'sdist']
-    print sys.argv
     try:
         SCons.Script.Main.main()
     except SystemExit as e:

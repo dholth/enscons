@@ -1,6 +1,5 @@
-# Following the build deps PEP:
 [build-system]
-requires = ["pytoml>=0.1", "import_scons"]
+requires = ["pytoml>=0.1", "import_scons", "enscons"]
 build-backend = "enscons.api"
 
 [tool.enscons]
