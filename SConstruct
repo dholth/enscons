@@ -49,4 +49,5 @@ install = env.Command("#DUMMY", whl,
 env.Alias('install', install)
 env.AlwaysBuild(install)
 
+# needed for pep517 / enscons.api to work
 env.Default(whl, sdist)
