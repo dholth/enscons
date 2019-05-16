@@ -1,12 +1,12 @@
 [build-system]
-requires = ["pytoml>=0.1", "import_scons", "enscons"]
+requires = ["pytoml>=0.1", "scons", "enscons"]
 build-backend = "enscons.api"
 
 [tool.enscons]
 name="enscons"
-version="0.7.0"
+version="0.8.0"
 packages=['enscons']
-install_requires=['import_scons', 'pytoml>=0.1', 'setuptools', 'wheel']
+install_requires=['scons', 'pytoml>=0.1', 'setuptools', 'wheel']
 description="Tools for building Python packages with SCons"
 description_file="README.rst"
 license="MIT"
