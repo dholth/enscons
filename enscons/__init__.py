@@ -24,6 +24,37 @@
 
 from __future__ import unicode_literals, print_function
 
+import os
+import sys
+
+# SCons installs itself in an odd path, under an empty scons/ directory
+prefs = []
+
+try:
+    import SCons.Script
+except ImportError:
+    try:
+        # empty scons directory (lowercase) is also a Python 3 namespace package
+        import scons
+        prefs.extend(scons.__path__)
+    except ImportError:
+        # python 2 / pkg_resources method
+        try:
+            import pkg_resources
+        except ImportError:
+            pass
+        else:
+            try:
+                d = pkg_resources.get_distribution('scons')
+            except pkg_resources.DistributionNotFound:
+                pass
+            else:
+                prefs.append(os.path.join(d.location, 'scons'))
+
+sys.path = prefs + sys.path
+
+import SCons.Script
+
 from distutils import sysconfig
 from SCons.Script import Copy, Action, FindInstalledFiles, GetOption, AddOption
 from pkg_resources import safe_name, safe_version, to_filename, safe_extra
