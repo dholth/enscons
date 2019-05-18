@@ -58,16 +58,17 @@ sys.path = prefs + sys.path
 
 import SCons.Script
 
-from distutils import sysconfig
 from SCons.Script import Copy, Action, FindInstalledFiles, GetOption, AddOption
-from pkg_resources import safe_name, safe_version, to_filename, safe_extra
+
+from distutils import sysconfig
 from collections import defaultdict
+
+from .util import safe_name, to_filename, generate_requirements
 
 import codecs
 import distutils.ccompiler, distutils.sysconfig, distutils.unixccompiler
 import os.path
 import SCons.Node.FS
-import wheel.metadata
 
 
 def get_binary_tag():
@@ -91,28 +92,6 @@ def get_universal_tag():
 def normalize_package(name):
     # XXX encourage project names to start out 'safe'
     return to_filename(safe_name(name))
-
-
-def convert_requirements(requirements, extras):
-    """
-    Convert requirements from a setup()-style dictionary to Requires-Dist
-    and Provides-Extra.
-    """
-    # XXX This will exist in the next wheel release
-    extras[""] = requirements
-    for extra, depends in extras.items():
-        condition = ""
-        if extra and ":" in extra:  # setuptools extra:condition syntax
-            extra, condition = extra.split(":", 1)
-        if extra:
-            yield ("Provides-Extra", extra)
-            if condition:
-                condition += " and "
-            condition += "extra == '%s'" % extra  # assume extra is already safe_extra()
-        if condition:
-            condition = "; " + condition
-        for new_req in sorted(wheel.metadata.convert_requirements(depends)):
-            yield ("Requires-Dist", new_req + condition)
 
 
 def egg_info_targets(env):
@@ -198,9 +177,14 @@ def metadata_builder(target, source, env):
         f.write("Platform: %s\n" % metadata["platform"])
         for classifier in metadata.get("classifiers", []):
             f.write("Classifier: %s\n" % classifier)
-        for requirement in convert_requirements(
-            metadata.get("install_requires", []), metadata.get("extras_require", {})
-        ):
+
+        # install_requires is equivalent to extras_require[""][...]
+        full_requires = metadata.get("extras_require", {})
+        full_requires[""] = full_requires.get("", []) + metadata.get(
+            "install_requires", []
+        )
+        print(full_requires, metadata)
+        for requirement in generate_requirements(full_requires):
             f.write("%s: %s\n" % requirement)
 
         if "description_file" in metadata:

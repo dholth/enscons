@@ -1,5 +1,11 @@
 """
-Command-line interface for PEP 517 builders. See also enscons.api.
+Command-line interface for PEP 517 builders.
+
+Invokes build against any [build-backend], not just enscons.
+
+See also the more complete https://github.com/pypa/pep517 utility.
+
+See also enscons.api.
 
 Install enscons[cli] for dependencies.
 """
@@ -9,7 +15,6 @@ import pprint
 import os.path
 import click
 import pytoml as toml
-import pkg_resources
 
 
 class Backend(object):

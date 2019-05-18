@@ -1,3 +1,8 @@
+0.10.0
+------
+- Remove dependency on wheel reference implementation (upstream is removing
+  its API)
+
 0.6.0
 -----
 - Tolerate missing optional metadata (written as 'UNKNOWN')
