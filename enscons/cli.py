@@ -14,9 +14,9 @@ import pkg_resources
 
 class Backend(object):
     def __init__(self):
-        self.metadata = dict(toml.load(open('pyproject.toml')))
-        build_backend = self.metadata['build-system']['build-backend']
-        module, _, obj = build_backend.partition(':')
+        self.metadata = dict(toml.load(open("pyproject.toml")))
+        build_backend = self.metadata["build-system"]["build-backend"]
+        module, _, obj = build_backend.partition(":")
         __import__(module)
         build_module = sys.modules[module]
         if obj:
@@ -40,7 +40,7 @@ def info():
 
 
 @click.command()
-@click.option('--wheel-dir', default='dist', help='Target directory for wheel')
+@click.option("--wheel-dir", default="dist", help="Target directory for wheel")
 def wheel(wheel_dir):
     """Build a wheel."""
     wheel_name = Backend().build_wheel(wheel_dir, {})
@@ -48,7 +48,7 @@ def wheel(wheel_dir):
 
 
 @click.command()
-@click.option('--dist-dir', default='dist', help='Target directory for sdist')
+@click.option("--dist-dir", default="dist", help="Target directory for sdist")
 def sdist(dist_dir):
     """Build a source distribution."""
     sdist_name = Backend().build_sdist(dist_dir, {})
