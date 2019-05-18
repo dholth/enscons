@@ -33,7 +33,8 @@ prefs = []
 try:
     import SCons.Script
 except ImportError:
-    del sys.modules["SCons"]  # or it won't try again
+    if "SCons" in sys.modules:
+        del sys.modules["SCons"]  # or it won't try again
     try:
         # empty scons directory (lowercase) is also a Python 3 namespace package
         import scons
@@ -216,9 +217,6 @@ import base64
 def urlsafe_b64encode(data):
     """urlsafe_b64encode without padding"""
     return base64.urlsafe_b64encode(data).rstrip(b"=")
-
-
-import wheel.bdist_wheel
 
 
 def add_manifest(target, source, env):

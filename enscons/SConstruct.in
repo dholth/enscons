@@ -1,7 +1,6 @@
 # Starter SConstruct for enscons
 # (filled by enscons.setup2toml)
 
-import sys
 import enscons
 import pytoml as toml
 
@@ -11,15 +10,10 @@ metadata = dict(toml.load(open("pyproject.toml")))["tool"]["enscons"]
 HAS_NATIVE_CODE = True
 
 if HAS_NATIVE_CODE:
-    # most specific binary, non-manylinux1 tag should be at the top of this list
-    import wheel.pep425tags
-
-    full_tag = "-".join(
-        next(tag for tag in wheel.pep425tags.get_supported() if not "manylinux" in tag)
-    )
+    full_tag = enscons.get_binary_tag()
 else:
     # pure Python packages compatible with 2+3
-    full_tag = "py2.py3-none-any"
+    full_tag = enscons.get_universal_tag()
 
 env = Environment(
     tools=["default", "packaging", enscons.generate],

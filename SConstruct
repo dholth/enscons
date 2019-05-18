@@ -26,27 +26,33 @@ import pytoml as toml
 import enscons
 import sys
 
-metadata = dict(toml.load(open('pyproject.toml')))['tool']['enscons']
+metadata = dict(toml.load(open("pyproject.toml")))["tool"]["enscons"]
 
-full_tag = 'py2.py3-none-any'
+full_tag = "py2.py3-none-any"
 
-env = Environment(tools=['default', 'packaging', enscons.generate],
-                  PACKAGE_METADATA=metadata,
-                  WHEEL_TAG=full_tag,
-                  )
+env = Environment(
+    tools=["default", "packaging", enscons.generate],
+    PACKAGE_METADATA=metadata,
+    WHEEL_TAG=full_tag,
+)
 
-py_source = Glob('enscons/*.py')
+py_source = Glob("enscons/*.py")
 
-sdist = env.SDist(source=FindSourceFiles() + ['PKG-INFO', 'setup.py', 'README.rst', 'CHANGES'])
+sdist = env.SDist(
+    source=FindSourceFiles() + ["PKG-INFO", "setup.py", "README.rst", "CHANGES"]
+)
 env.NoClean(sdist)
-env.Alias('sdist', sdist)
+env.Alias("sdist", sdist)
 
-purelib = env.Whl('purelib', py_source, root='.')
+purelib = env.Whl("purelib", py_source, root=".")
 whl = env.WhlFile(purelib)
 
-install = env.Command("#DUMMY", whl,
-    ' '.join([sys.executable, '-m', 'pip', 'install', '--no-deps', '$SOURCE']))
-env.Alias('install', install)
+install = env.Command(
+    "#DUMMY",
+    whl,
+    " ".join([sys.executable, "-m", "pip", "install", "--no-deps", "$SOURCE"]),
+)
+env.Alias("install", install)
 env.AlwaysBuild(install)
 
 # needed for pep517 / enscons.api to work
