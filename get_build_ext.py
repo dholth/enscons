@@ -6,4 +6,5 @@ import distutils.ccompiler, distutils.sysconfig
 
 # Which env variables must be overridden?
 from SCons.Script import *
-env = Environment(tools=['default', enscons.cpyext.distutool])
+
+env = Environment(tools=["default", enscons.cpyext.distutool])

@@ -7,6 +7,7 @@ syntax:glob
 *.pyc
 *.so
 *.*-info
+*.whl
 build
 dist
 __pycache__
