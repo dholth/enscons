@@ -185,7 +185,7 @@ def metadata_builder(target, source, env):
         f.write("Version: %s\n" % metadata["version"])
         # Optional values:
         metadata = defaultdict(lambda: "UNKNOWN", **metadata)
-        f.write("Sumary: %s\n" % metadata["description"])
+        f.write("Summary: %s\n" % metadata["description"])
         f.write("Home-Page: %s\n" % metadata["url"])
         # XXX expand author to author, author-email with email.utils.parseaddr
         # XXX Author-email can contain both author's name and e-mail
