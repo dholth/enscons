@@ -6,8 +6,8 @@ import pytoml as toml
 
 metadata = dict(toml.load(open("pyproject.toml")))["tool"]["enscons"]
 
-# set to False if package is pure Python
-HAS_NATIVE_CODE = True
+# set to True if package is not pure Python
+HAS_NATIVE_CODE = False
 
 if HAS_NATIVE_CODE:
     full_tag = enscons.get_binary_tag()
@@ -26,8 +26,8 @@ env = Environment(
 # Add extra 'purelib' files or package_data here.
 py_source = {py_source}
 
-purelib = env.Whl("purelib", py_source, root={src_root})
-whl = env.WhlFile(purelib)
+lib = env.Whl("platlib" if HAS_NATIVE_CODE else "purelib", py_source, root={src_root})
+whl = env.WhlFile(lib)
 
 # Add automatic source files, plus any other needed files.
 sdist_source = FindSourceFiles() + ["PKG-INFO", "setup.py"]
