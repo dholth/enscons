@@ -142,7 +142,13 @@ def main():
         OrderedDict(
             [
                 ["tool", {"enscons": ordered_arguments}],
-                ["build-system", {"requires": ["pytoml>=0.1", "enscons"]}],
+                [
+                    "build-system",
+                    {
+                        "requires": ["pytoml>=0.1", "enscons"],
+                        "build-backend": "enscons.api",
+                    },
+                ],
             ]
         ),
         sort_keys=False,
