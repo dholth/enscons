@@ -210,7 +210,7 @@ def add_manifest(target, source, env):
     import hashlib
     import zipfile
 
-    archive = zipfile.ZipFile(target[0].get_path(), "a")
+    archive = zipfile.ZipFile(target[0].get_path(), "a", compression=zipfile.ZIP_DEFLATED)
     lines = []
     for f in archive.namelist():
         data = archive.read(f)
