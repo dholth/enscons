@@ -339,18 +339,21 @@ def SDist(env, target=None, source=None):
 
     src_type = "src_targz"
 
+    # also the root directory name inside the archive
+    target_prefix = "-".join((env["PACKAGE_NAME"], env["PACKAGE_VERSION"]))
     if not target:
-        target = [
-            os.path.join(
-                env["DIST_BASE"], env["PACKAGE_NAME"] + "-" + env["PACKAGE_VERSION"]
-            )
-        ]
-    sdist = env.Package(
-        NAME=env["PACKAGE_METADATA"]["name"],
-        VERSION=env["PACKAGE_METADATA"]["version"],
-        PACKAGETYPE=src_type,
+        target = [os.path.join(env["DIST_BASE"], target_prefix)]
+
+    source = sorted(env.arg2nodes(source, env.fs.Entry))
+
+    sdist = env.PyTar(
         target=target,
         source=source,
+        TARPREFIX=target_prefix,
+        TARSUFFIX=".tar.gz",
+        TARUID=0,
+        TARGID=0,
+        TARMTIME=0,
     )
     return sdist
 
@@ -360,13 +363,10 @@ def generate(env):
     Set up enscons in Environment env
     """
 
-    try:
-        # pure-Python tar for SCons
-        import SCons.Tool.pytar
+    # pure-Python tar
+    from . import pytar
 
-        SCons.Tool.pytar.generate(env)
-    except ImportError:
-        pass
+    pytar.generate(env)
 
     if not hasattr(generate, "once"):
         AddOption(

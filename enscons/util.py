@@ -56,4 +56,3 @@ def generate_requirements(extras_require):
 
         for new_req in convert_requirements(depends):
             yield "Requires-Dist", new_req + condition
-

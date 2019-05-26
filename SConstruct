@@ -36,10 +36,10 @@ env = Environment(
     WHEEL_TAG=full_tag,
 )
 
-py_source = Glob("enscons/*.py")
+py_source = Glob("enscons/*.py") + ["enscons/SConstruct.in"]
 
 sdist = env.SDist(
-    source=FindSourceFiles() + ["PKG-INFO", "setup.py", "README.rst", "CHANGES"]
+    source=FindSourceFiles() + ["PKG-INFO", "setup.py", "README.rst", "CHANGES"],
 )
 env.NoClean(sdist)
 env.Alias("sdist", sdist)
