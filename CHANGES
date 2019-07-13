@@ -1,3 +1,9 @@
+0.13.0
+------
+- Generate .tar.gz with zip-friendly post-1980 timestamps. Still need to set
+  timestamps of zip for .whl instead of having zipfile read them from the
+  filesystem.
+
 0.10.0
 ------
 - Remove dependency on wheel reference implementation (upstream is removing

@@ -27,6 +27,10 @@ from __future__ import unicode_literals, print_function
 import os
 import sys
 
+# avoid timestamps before 1980 to be friendly to .zip
+SOURCE_EPOCH_TGZ = 499206000
+SOURCE_EPOCH_ZIP = 499206060
+
 # SCons installs itself in an odd path, under an empty scons/ directory
 prefs = []
 
@@ -40,7 +44,7 @@ except ImportError:
         import scons
 
         prefs.extend(scons.__path__)
-    except ImportError:
+    except (ImportError, AttributeError):
         # python 2 / pkg_resources method
         try:
             import pkg_resources
@@ -210,7 +214,9 @@ def add_manifest(target, source, env):
     import hashlib
     import zipfile
 
-    archive = zipfile.ZipFile(target[0].get_path(), "a", compression=zipfile.ZIP_DEFLATED)
+    archive = zipfile.ZipFile(
+        target[0].get_path(), "a", compression=zipfile.ZIP_DEFLATED
+    )
     lines = []
     for f in archive.namelist():
         data = archive.read(f)
@@ -353,7 +359,7 @@ def SDist(env, target=None, source=None):
         TARSUFFIX=".tar.gz",
         TARUID=0,
         TARGID=0,
-        TARMTIME=0,
+        TARMTIME=SOURCE_EPOCH_TGZ,
     )
     return sdist
 
