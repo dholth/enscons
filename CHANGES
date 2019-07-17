@@ -1,3 +1,8 @@
+0.20.0
+------
+- Changes to allow multiple wheels with env.Clone(), for `nonstdlib` project
+- Add target parameter to WhlFile
+
 0.13.0
 ------
 - Generate .tar.gz with zip-friendly post-1980 timestamps. Still need to set

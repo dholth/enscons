@@ -300,6 +300,8 @@ def Whl(env, category, source, root=None):
     source: files belonging to category
     root: relative to root directory i.e. '.', 'src'
     """
+    enscons_defaults(env)
+
     # Create target the first time this is called
     wheelmeta = []
     try:
@@ -321,11 +323,20 @@ def Whl(env, category, source, root=None):
     return targets + wheelmeta
 
 
-def WhlFile(env, source=None):
+def WhlFile(env, target=None, source=None):
     """
     Archive wheel members collected from Whl(...)
     """
-    whl = env.Zip(target=env["WHEEL_FILE"], source=source, ZIPROOT=env["WHEEL_PATH"])
+    enscons_defaults(env)
+
+    # positional arguments for older enscons
+    if target and not source:
+        source = target
+        target = None
+
+    whl = env.Zip(
+        target=target or env.get("WHEEL_FILE"), source=source, ZIPROOT=env["WHEEL_PATH"]
+    )
 
     env.NoClean(whl)
     env.Alias("bdist_wheel", whl)
@@ -340,8 +351,15 @@ def SDist(env, target=None, source=None):
     Call env.Package() with sdist filename inferred from
     env['PACKAGE_METADATA'] etc.
     """
+    enscons_defaults(env)
 
-    import SCons.Tool.packaging
+    egg_info = env.Command(egg_info_targets(env), "pyproject.toml", egg_info_builder)
+    env.Clean(egg_info, env["EGG_INFO_PATH"])
+    env.Alias("egg_info", egg_info)
+
+    pkg_info = env.Command(
+        "PKG-INFO", egg_info_targets(env)[0].get_path(), Copy("$TARGET", "$SOURCE")
+    )
 
     src_type = "src_targz"
 
@@ -362,6 +380,38 @@ def SDist(env, target=None, source=None):
         TARMTIME=SOURCE_EPOCH_TGZ,
     )
     return sdist
+
+
+def enscons_defaults(env):
+    """
+    To avoid setting these in generate().
+    """
+    # once
+    if "ROOT_IS_PURELIB" in env:
+        return
+
+    try:
+        env["ROOT_IS_PURELIB"]
+    except KeyError:
+        env["ROOT_IS_PURELIB"] = env["WHEEL_TAG"].endswith("none-any")
+
+    env["EGG_INFO_PREFIX"] = GetOption("egg_base")  # pip wants this in a target dir
+    env["WHEEL_DIR"] = GetOption("wheel_dir") or "dist"  # target directory for wheel
+    env["DIST_BASE"] = GetOption("dist_dir") or "dist"
+
+    env["PACKAGE_NAME"] = env["PACKAGE_METADATA"]["name"]
+    env["PACKAGE_NAME_SAFE"] = normalize_package(env["PACKAGE_NAME"])
+    env["PACKAGE_VERSION"] = env["PACKAGE_METADATA"]["version"]
+
+    # place egg_info in src_root if defined
+    if not env["EGG_INFO_PREFIX"] and env["PACKAGE_METADATA"].get("src_root"):
+        env["EGG_INFO_PREFIX"] = env["PACKAGE_METADATA"]["src_root"]
+
+    # Development .egg-info has no version number. Needs to have
+    # underscore _ and not hyphen -
+    env["EGG_INFO_PATH"] = env["PACKAGE_NAME_SAFE"] + ".egg-info"
+    if env["EGG_INFO_PREFIX"]:
+        env["EGG_INFO_PATH"] = env.Dir(env["EGG_INFO_PREFIX"]).Dir(env["EGG_INFO_PATH"])
 
 
 def generate(env):
@@ -406,39 +456,6 @@ def generate(env):
         )
 
         generate.once = True
-
-    try:
-        env["ROOT_IS_PURELIB"]
-    except KeyError:
-        env["ROOT_IS_PURELIB"] = env["WHEEL_TAG"].endswith("none-any")
-
-    env["EGG_INFO_PREFIX"] = GetOption("egg_base")  # pip wants this in a target dir
-    env["WHEEL_DIR"] = GetOption("wheel_dir") or "dist"  # target directory for wheel
-    env["DIST_BASE"] = GetOption("dist_dir") or "dist"
-
-    env["PACKAGE_NAME"] = env["PACKAGE_METADATA"]["name"]
-    env["PACKAGE_NAME_SAFE"] = normalize_package(env["PACKAGE_NAME"])
-    env["PACKAGE_VERSION"] = env["PACKAGE_METADATA"]["version"]
-
-    # place egg_info in src_root if defined
-    if not env["EGG_INFO_PREFIX"] and env["PACKAGE_METADATA"].get("src_root"):
-        env["EGG_INFO_PREFIX"] = env["PACKAGE_METADATA"]["src_root"]
-
-    # Development .egg-info has no version number. Needs to have
-    # underscore _ and not hyphen -
-    env["EGG_INFO_PATH"] = env["PACKAGE_NAME_SAFE"] + ".egg-info"
-    if env["EGG_INFO_PREFIX"]:
-        env["EGG_INFO_PATH"] = env.Dir(env["EGG_INFO_PREFIX"]).Dir(env["EGG_INFO_PATH"])
-
-    egg_info = env.Command(egg_info_targets(env), "pyproject.toml", egg_info_builder)
-
-    env.Clean(egg_info, env["EGG_INFO_PATH"])
-
-    env.Alias("egg_info", egg_info)
-
-    pkg_info = env.Command(
-        "PKG-INFO", egg_info_targets(env)[0].get_path(), Copy("$TARGET", "$SOURCE")
-    )  # TARGET and SOURCE are ''?
 
     env.AddMethod(Whl)
     env.AddMethod(WhlFile)
