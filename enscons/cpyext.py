@@ -34,8 +34,16 @@ def extension_filename(modname, abi3=False):
     modpath = fullname.split(".")
     ext_filename = os.path.join(*modpath)
 
-    suffixes = importlib.machinery.EXTENSION_SUFFIXES
-    suffix = suffixes[0] if suffixes else get_config_var("EXT_SUFFIX")
+    suffix = None
+    try:
+        suffixes = importlib.machinery.EXTENSION_SUFFIXES
+        suffix = suffixes[0] if suffixes else None
+    except AttributeError:
+        pass
+    if not suffix:
+        suffix = get_config_var("EXT_SUFFIX")
+    if not suffix:
+        suffix = get_config_var("SO")  # py2
 
     if abi3:
         suffix = suffix or _abi3_suffix()
@@ -75,11 +83,13 @@ def get_build_ext(name="zoot"):
     return cmd
 
 
-def _abi3_suffix():
-    import imp
-
-    for (suffix, _, _) in imp.get_suffixes():
-        if "abi3" in suffix:
+# from setuptools
+def get_abi3_suffix():
+    """Return the file extension for an abi3-compliant Extension()"""
+    for suffix, _, _ in (s for s in imp.get_suffixes() if s[2] == imp.C_EXTENSION):
+        if ".abi3" in suffix:  # Unix
+            return suffix
+        elif suffix == ".pyd":  # Windows
             return suffix
 
 
