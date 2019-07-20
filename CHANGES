@@ -1,3 +1,9 @@
+0.21.0
+------
+- New functions for C extensions:
+  `enscons.cpyext.extension_filename(modname, abi3=False)` and
+  `enscons.get_abi3_tag()`
+
 0.20.0
 ------
 - Changes to allow multiple wheels with env.Clone(), for `nonstdlib` project

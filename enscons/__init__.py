@@ -77,7 +77,7 @@ import SCons.Node.FS
 
 def get_binary_tag():
     """
-    Return most-specific binary extension wheel tag 'interpreter-abi-arch'
+    Return first binary extension wheel tag 'interpreter-abi-arch' but not "manylinux"
     """
     import wheel.pep425tags
 
@@ -91,6 +91,20 @@ def get_universal_tag():
     Return 'py2.py3-none-any'
     """
     return "py2.py3-none-any"
+
+
+def get_abi3_tag():
+    """
+    Return first abi3 tag, or None if not supported.
+    """
+    import wheel.pep425tags
+
+    try:
+        return "-".join(
+            next(tag for tag in wheel.pep425tags.get_supported() if "abi3" in tag)
+        )
+    except StopIteration:
+        return get_binary_tag()
 
 
 def normalize_package(name):

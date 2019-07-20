@@ -4,7 +4,7 @@ Compiled extension support.
 
 from __future__ import print_function
 
-import distutils.sysconfig, sysconfig, os
+import distutils.sysconfig, sysconfig, os, os.path
 
 from distutils.core import Distribution
 from distutils.extension import Extension
@@ -13,6 +13,34 @@ from distutils.command.build_ext import build_ext
 # not used when generate is passed directly to Environment
 def exists(env):
     return True
+
+
+def extension_filename(modname, abi3=False):
+    """
+    Return the path for a new extension.
+
+    Given the Python dot-separated modname "a.b.c", return e.g.
+    "a/b/c.cpython-xyz.so".
+
+    If abi3=True and supported by the interpreter, return e.g.
+    "a/b/c.abi3.so".
+    """
+    import importlib
+    from distutils.sysconfig import get_config_var
+
+    # we could probably just split modname by '.' instead of using ext here:
+    ext = get_build_ext()
+    fullname = ext.get_ext_fullname(modname)
+    modpath = fullname.split(".")
+    ext_filename = os.path.join(*modpath)
+
+    suffixes = importlib.machinery.EXTENSION_SUFFIXES
+    suffix = suffixes[0] if suffixes else get_config_var("EXT_SUFFIX")
+
+    if abi3:
+        suffix = suffix or _abi3_suffix()
+
+    return ext_filename + suffix
 
 
 class no_build_ext(build_ext):
@@ -45,6 +73,14 @@ def get_build_ext(name="zoot"):
     cmd.ensure_finalized()
     cmd.run()
     return cmd
+
+
+def _abi3_suffix():
+    import imp
+
+    for (suffix, _, _) in imp.get_suffixes():
+        if "abi3" in suffix:
+            return suffix
 
 
 def generate(env):
