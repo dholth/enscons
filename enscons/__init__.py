@@ -77,13 +77,11 @@ import SCons.Node.FS
 
 def get_binary_tag():
     """
-    Return first binary extension wheel tag 'interpreter-abi-arch' but not "manylinux"
+    Return most-specific binary extension wheel tag 'interpreter-abi-arch'
     """
-    import wheel.pep425tags
+    from . import tags
 
-    return "-".join(
-        next(tag for tag in wheel.pep425tags.get_supported() if not "manylinux" in tag)
-    )
+    return str(next(tag for tag in tags.sys_tags() if not "manylinux" in tag.platform))
 
 
 def get_universal_tag():
@@ -97,12 +95,10 @@ def get_abi3_tag():
     """
     Return first abi3 tag, or None if not supported.
     """
-    import wheel.pep425tags
+    from . import tags
 
     try:
-        return "-".join(
-            next(tag for tag in wheel.pep425tags.get_supported() if "abi3" in tag)
-        )
+        return str(next(tag for tag in tags.sys_tags() if "abi3" in tag.abi))
     except StopIteration:
         return get_binary_tag()
 

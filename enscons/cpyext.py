@@ -10,6 +10,9 @@ from distutils.core import Distribution
 from distutils.extension import Extension
 from distutils.command.build_ext import build_ext
 
+import imp
+import importlib
+
 # not used when generate is passed directly to Environment
 def exists(env):
     return True
@@ -25,7 +28,6 @@ def extension_filename(modname, abi3=False):
     If abi3=True and supported by the interpreter, return e.g.
     "a/b/c.abi3.so".
     """
-    import importlib
     from distutils.sysconfig import get_config_var
 
     # we could probably just split modname by '.' instead of using ext here:
@@ -46,7 +48,7 @@ def extension_filename(modname, abi3=False):
         suffix = get_config_var("SO")  # py2
 
     if abi3:
-        suffix = suffix or _abi3_suffix()
+        suffix = get_abi3_suffix() or suffix
 
     return ext_filename + suffix
 
