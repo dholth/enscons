@@ -1,5 +1,5 @@
 [build-system]
-requires = ["pytoml>=0.1", "scons", "enscons>=0.21"]
+requires = ["pytoml>=0.1", "scons", "enscons>=0.23"]
 build-backend = "enscons.api"
 
 [tool.enscons]
