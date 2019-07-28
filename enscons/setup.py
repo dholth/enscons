@@ -20,10 +20,6 @@ def develop(path):
     pathfile = os.path.join(pathdir, "easy-install.pth")
 
     pthdistributions = easy_install.PthDistributions(pathfile)
-    # distribution = Distribution(
-    #     target,
-    #     PathMetadata(target, os.path.abspath(ei.egg_info)),
-    #     project_name=ei.egg_name)
     distribution = list(pkg_resources.find_distributions(path, True))[0]
     pthdistributions.add(distribution)
     pthdistributions.save()
@@ -69,16 +65,6 @@ def setup():
     ):
         if getattr(args, arg):
             sys.argv.append("=".join((flag, getattr(args, arg))))
-
-    if "develop" in sys.argv:
-        src_root = "."
-        import pytoml
-
-        with open("pyproject.toml", "r") as pyproject:
-            metadata = pytoml.load(pyproject)
-            src_root = metadata["tool"]["enscons"].get("src_root", src_root)
-        develop(src_root)
-        sys.argv.remove("develop")
 
     sys.path[0:0] = ["setup-requires"]
     pkg_resources.working_set.add_entry("setup-requires")

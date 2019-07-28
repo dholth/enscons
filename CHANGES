@@ -1,3 +1,13 @@
+0.23.0
+------
+- Add support for `scons develop` for editable installs, automatically builds
+  required metadata if missing. Requires change to `SConstruct` compared to
+  previous `setup.py` emulation.
+
+0.22
+----
+- Improved ABI3 support for Windows by vendoring `packaging.tags`
+
 0.21.0
 ------
 - New functions for C extensions:

@@ -39,7 +39,7 @@ env = Environment(
 py_source = Glob("enscons/*.py") + ["enscons/SConstruct.in"]
 
 sdist = env.SDist(
-    source=FindSourceFiles() + ["PKG-INFO", "setup.py", "README.rst", "CHANGES"],
+    source=FindSourceFiles() + ["PKG-INFO", "setup.py", "README.rst", "CHANGES"]
 )
 env.NoClean(sdist)
 env.Alias("sdist", sdist)
@@ -47,13 +47,16 @@ env.Alias("sdist", sdist)
 purelib = env.Whl("purelib", py_source, root=".")
 whl = env.WhlFile(purelib)
 
+# Deprecated. Current pip should be able to install without "setup.py install"
 install = env.Command(
-    "#DUMMY",
+    "#INSTALL",
     whl,
     " ".join([sys.executable, "-m", "pip", "install", "--no-deps", "$SOURCE"]),
 )
 env.Alias("install", install)
-env.AlwaysBuild(install)
+
+develop = env.Command("#DEVELOP", enscons.egg_info_targets(env), enscons.develop)
+env.Alias("develop", develop)
 
 # needed for pep517 / enscons.api to work
 env.Default(whl, sdist)

@@ -118,6 +118,19 @@ def egg_info_targets(env):
     ]
 
 
+def develop(env, target=None, source=None):
+    """
+    Add `scons develop` target to your SConstruct with
+
+    develop = env.Command("#DEVELOP", enscons.egg_info_targets(env), enscons.develop)
+    env.Alias("develop", develop)
+    """
+    import enscons.setup
+
+    enscons_defaults(env)
+    enscons.setup.develop(env["EGG_INFO_PREFIX"] or ".")
+
+
 import setuptools.command.egg_info
 
 
