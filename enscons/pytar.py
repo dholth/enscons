@@ -76,6 +76,7 @@ TarBuilder = SCons.Builder.Builder(
     source_scanner=SCons.Defaults.DirScanner,
     suffix="$TARSUFFIX",
     multi=True,
+    ensure_suffix=True,
 )
 
 
