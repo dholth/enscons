@@ -28,8 +28,8 @@ import os
 import sys
 
 # avoid timestamps before 1980 to be friendly to .zip
-SOURCE_EPOCH_TGZ = 499206000
-SOURCE_EPOCH_ZIP = 499206060
+SOURCE_EPOCH_TGZ = 499162800
+SOURCE_EPOCH_ZIP = 499162860
 
 # SCons installs itself in an odd path, under an empty scons/ directory
 prefs = []
