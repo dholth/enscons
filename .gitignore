@@ -1,0 +1,16 @@
+*~
+.*
+*.c
+*.o
+*.orig
+*.pyc
+*.so
+*.*-info
+*.whl
+build
+dist
+__pycache__
+docs/_build
+enscons-*
+setup-requires
+PKG-INFO
