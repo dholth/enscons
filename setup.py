@@ -9,7 +9,7 @@ sys.path[0:0] = ["setup-requires"]
 try:
     import enscons.setup
 except ImportError:
-    requires = ["scons>=3.0.5", "pytoml", "wheel"]  # just ["enscons"] for enscons users
+    requires = ["scons>=3.0.5", "pytoml"]  # just ["enscons"] for enscons users
     subprocess.check_call(
         [sys.executable, "-m", "pip", "install", "-t", "setup-requires"] + requires
     )
