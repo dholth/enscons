@@ -26,6 +26,7 @@ from __future__ import unicode_literals, print_function
 
 import os
 import sys
+import time
 
 # avoid timestamps before 1980 to be friendly to .zip
 SOURCE_EPOCH_TGZ = 499162800
@@ -251,7 +252,9 @@ def add_manifest(target, source, env):
     record_path = env["DIST_INFO_PATH"].get_path(dir=env["WHEEL_PATH"]) + "/RECORD"
     lines.append(record_path + ",,")
     RECORD = "\n".join(lines)
-    archive.writestr(record_path, RECORD)
+    archive.writestr(
+        zipfile.ZipInfo(record_path, time.gmtime(SOURCE_EPOCH_ZIP)[:6]), RECORD
+    )
     archive.close()
 
 
@@ -346,6 +349,26 @@ def Whl(env, category, source, root=None):
     return targets + wheelmeta
 
 
+def _patch_source_epoch():
+    """
+    SCons ZIP doesn't accept this as a parameter yet.
+    """
+    if hasattr(_patch_source_epoch, "_once"):
+        return
+    _patch_source_epoch._once = True
+
+    import zipfile
+
+    _from_file = zipfile.ZipInfo.from_file
+
+    def from_file(filename, arcname=None):
+        zinfo = _from_file(filename, arcname)
+        zinfo.date_time = time.gmtime(SOURCE_EPOCH_ZIP)[0:6]
+        return zinfo
+
+    zipfile.ZipInfo.from_file = from_file
+
+
 def WhlFile(env, target=None, source=None):
     """
     Archive wheel members collected from Whl(...)
@@ -356,6 +379,8 @@ def WhlFile(env, target=None, source=None):
     if target and not source:
         source = target
         target = None
+
+    _patch_source_epoch()
 
     whl = env.Zip(
         target=target or env.get("WHEEL_FILE"), source=source, ZIPROOT=env["WHEEL_PATH"]
