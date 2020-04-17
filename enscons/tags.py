@@ -35,6 +35,8 @@ import warnings
 
 import attr
 
+from packaging import tags
+
 
 INTERPRETER_SHORT_NAMES = {
     "python": "py",  # Generic.
@@ -80,6 +82,14 @@ def _cpython_interpreter(py_version):
     return "cp{major}{minor}".format(major=py_version[0], minor=py_version[1])
 
 
+def _use_malloc():
+    with_pymalloc = sysconfig.get_config_var("WITH_PYMALLOC")
+    if with_pymalloc is None:
+        impl = tags.interpreter_name()
+        return impl == 'cp'
+    return False
+
+
 # TODO: This code is simpler compared to pep425tags as CPython 2.7 didn't seem
 #       to need the fallbacks. Is that acceptable?
 def _cpython_abi(py_version):
@@ -90,7 +100,7 @@ def _cpython_abi(py_version):
         found_options = [str(py_version[0]), str(py_version[1])]
         if sysconfig.get_config_var("Py_DEBUG"):
             found_options.append("d")
-        if sysconfig.get_config_var("WITH_PYMALLOC"):
+        if _use_malloc():
             found_options.append("m")
         if sysconfig.get_config_var("Py_UNICODE_SIZE") == 4:
             found_options.append("u")
