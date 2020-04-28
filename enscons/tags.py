@@ -86,7 +86,7 @@ def _use_malloc():
     with_pymalloc = sysconfig.get_config_var("WITH_PYMALLOC")
     if with_pymalloc is None:
         impl = tags.interpreter_name()
-        return impl == 'cp'
+        return impl == 'cp' and sys.version_info < (3, 8)
     return False
 
 
