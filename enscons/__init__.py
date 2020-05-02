@@ -303,7 +303,11 @@ def init_wheel(env):
         env["PACKAGE_NAME_SAFE"] + "-" + env["PACKAGE_VERSION"] + ".data"
     )
 
-    whl = env["WHEEL_FILE"] = env.Dir(wheel_target_dir).File(wheel_filename)
+    # used by prepare_metadata_for_build_wheel
+    dist_info = env.Install(env.Dir(env["WHEEL_DIR"]), env["DIST_INFO_PATH"])
+    env.Alias("dist_info", dist_info)
+
+    env["WHEEL_FILE"] = env.Dir(wheel_target_dir).File(wheel_filename)
 
     # Write WHEEL and METADATA
     wheelmeta = wheel_metadata(env)

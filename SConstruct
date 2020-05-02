@@ -47,14 +47,6 @@ env.Alias("sdist", sdist)
 purelib = env.Whl("purelib", py_source, root=".")
 whl = env.WhlFile(purelib)
 
-# Deprecated. Current pip should be able to install without "setup.py install"
-install = env.Command(
-    "#INSTALL",
-    whl,
-    " ".join([sys.executable, "-m", "pip", "install", "--no-deps", "$SOURCE"]),
-)
-env.Alias("install", install)
-
 develop = env.Command("#DEVELOP", enscons.egg_info_targets(env), enscons.develop)
 env.Alias("develop", develop)
 

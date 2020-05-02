@@ -15,20 +15,24 @@ def get_build_wheel_requires(settings):
     return []
 
 
-def prepare_wheel_metadata(metadata_directory, settings):
-    return  # basename of wheel...
+def _run(alias):
+    try:
+        SCons.Script.Main.main()
+    except SystemExit:
+        pass
+    # extreme non-api:
+    lookup = SCons.Node.arg2nodes_lookups[0](alias).sources[0]
+    return os.path.basename(str(lookup))
+
+
+def prepare_metadata_for_build_wheel(metadata_directory, settings):
+    sys.argv[1:] = ["--wheel-dir=" + metadata_directory, "dist_info"]
+    return _run("dist_info")
 
 
 def build_wheel(wheel_directory, settings, metadata_directory=None):
     sys.argv[1:] = ["--wheel-dir=" + wheel_directory, "bdist_wheel"]
-    try:
-        SCons.Script.Main.main()
-    except SystemExit as e:
-        pass
-    for target in SCons.Script.DEFAULT_TARGETS:
-        target_name = str(target)
-        if target_name.endswith(".whl"):
-            return os.path.basename(target_name)
+    return _run("bdist_wheel")
 
 
 def get_build_sdist_requires(settings):
