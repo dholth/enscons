@@ -438,9 +438,10 @@ def enscons_defaults(env):
     """
     To avoid setting these in generate().
     """
-    # once
-    if "ROOT_IS_PURELIB" in env:
+    once_key = "_ENSCONS_DEFAULTS"
+    if once_key in env:
         return
+    env[once_key] = True
 
     try:
         env["ROOT_IS_PURELIB"]
