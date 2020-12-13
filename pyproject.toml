@@ -4,7 +4,7 @@ build-backend = "enscons.api"
 
 [tool.enscons]
 name="enscons"
-version="0.24.1"
+version="0.24.2"
 packages=["enscons"]
 install_requires=["scons>=3.0.5", "pytoml>=0.1", "setuptools", "wheel", "attrs", "packaging", "editables"]
 description="Tools for building Python packages with SCons"

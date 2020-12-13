@@ -402,7 +402,7 @@ def _patch_source_epoch():
 
     _from_file = zipfile.ZipInfo.from_file
 
-    def from_file(filename, arcname=None):
+    def from_file(filename, arcname=None, **kwargs):
         zinfo = _from_file(filename, arcname)
         zinfo.date_time = time.gmtime(SOURCE_EPOCH_ZIP)[0:6]
         return zinfo
