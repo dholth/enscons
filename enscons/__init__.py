@@ -231,6 +231,25 @@ def urlsafe_b64encode(data):
     return base64.urlsafe_b64encode(data).rstrip(b"=")
 
 
+def add_editable(target, source, env):
+    """
+    Add the editable stub modules to a zip file.
+    """
+    import zipfile
+    import editables
+    import os.path
+
+    src_root = os.path.abspath(env["PACKAGE_METADATA"].get("src_root", ""))
+
+    archive = zipfile.ZipFile(
+        target[0].get_path(), "a", compression=zipfile.ZIP_DEFLATED
+    )
+    lines = []
+    for f, data in editables.build_editable(src_root):
+        archive.writestr(zipfile.ZipInfo(f, time.gmtime(SOURCE_EPOCH_ZIP)[:6]), data)
+    archive.close()
+
+
 def add_manifest(target, source, env):
     """
     Add the wheel manifest.
