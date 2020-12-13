@@ -4,7 +4,7 @@ build-backend = "enscons.api"
 
 [tool.enscons]
 name="enscons"
-version="0.24.0"
+version="0.24.1"
 packages=["enscons"]
 install_requires=["scons>=3.0.5", "pytoml>=0.1", "setuptools", "wheel", "attrs", "packaging", "editables"]
 description="Tools for building Python packages with SCons"
@@ -21,7 +21,7 @@ classifiers=[
 keywords=["packaging", "wheel"]
 author="Daniel Holth"
 author_email="dholth@fastmail.fm"
-url="https://bitbucket.org/dholth/enscons"
+url="https://github.com/dholth/enscons"
 src_root="."
 
 [tool.enscons.entry_points]
