@@ -50,18 +50,5 @@ whl = env.WhlFile(purelib)
 develop = env.Command("#DEVELOP", enscons.egg_info_targets(env), enscons.develop)
 env.Alias("develop", develop)
 
-if hasattr(enscons, "add_editable"):
-    # experimental PEP517-style editable
-    # with filename that won't collide with our real wheel
-    editable = env.Zip(
-        target=env.Dir(env["WHEEL_DIR"]).File("enscons-0.0-py2.py3.ed-none-any.whl"),
-        source=env["DIST_INFO_PATH"],
-        ZIPROOT=env["WHEEL_PATH"],
-    )
-    env.Alias("editable", editable)
-    env.NoClean(editable)
-    env.AddPostAction(editable, Action(enscons.add_editable))
-    env.AddPostAction(editable, Action(enscons.add_manifest))
-
 # needed for pep517 / enscons.api to work
 env.Default(whl, sdist)

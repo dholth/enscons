@@ -339,6 +339,24 @@ def init_wheel(env):
 
     targets = wheelmeta + wheel_entry_points
 
+    # experimental PEP517-style editable
+    # with filename that won't collide with our real wheel (SCons wouldn't like that)
+    editable_filename = (
+        "-".join(
+            (env["PACKAGE_NAME_SAFE"], env["PACKAGE_VERSION"], "ed." + env["WHEEL_TAG"])
+        )
+        + ".whl"
+    )
+    editable = env.Zip(
+        target=env.Dir(env["WHEEL_DIR"]).File(editable_filename),
+        source=env["DIST_INFO_PATH"],
+        ZIPROOT=env["WHEEL_PATH"],
+    )
+    env.Alias("editable", editable)
+    env.NoClean(editable)
+    env.AddPostAction(editable, Action(add_editable))
+    env.AddPostAction(editable, Action(add_manifest))
+
     return targets
 
 
