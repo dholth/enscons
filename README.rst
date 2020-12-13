@@ -73,11 +73,13 @@ Example enscons projects
 
 Right now, the best way to learn how enscons works is by example.
 
-* `rsalette <https://bitbucket.org/dholth/rsalette/src>`_ Simple package with just two modules.
-* `cryptacular <https://bitbucket.org/dholth/cryptacular/src>`_ Has a C extension.
-* `pysdl2-cffi <https://bitbucket.org/dholth/pysdl2-cffi/src>`_ Generates Python and C source code as part of the build, then compiles the generated source.
+* `rsalette <https://github.com/dholth/rsalette/>`_ Simple package with just two modules.
+* `cryptacular <https://github.com/dholth/cryptacular/>`_ Has a C extension.
+* `pysdl2-cffi <https://github.com/dholth/pysdl2-cffi/>`_ Generates Python and C source code as part of the build, then compiles the generated source.
 * `hello-pyrust <https://github.com/dholth/hello-pyrust>`_ An extension using `Rust <https://www.rust-lang.org/>`_ and `cffi <http://cffi.readthedocs.io/en/latest/>`_ instead of C.
-* `enscons <https://bitbucket.org/dholth/enscons/src>`_ Enscons builds itself.
+* `enscons <https://github.com/dholth/enscons/>`_ Enscons builds itself.
+* `nonstdlib <https://github.com/dholth/nonstdlib/>`_ Experimental repackaging of the Python standard library into many wheels.
+
 
 More about SCons
 ================

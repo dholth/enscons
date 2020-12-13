@@ -231,6 +231,25 @@ def urlsafe_b64encode(data):
     return base64.urlsafe_b64encode(data).rstrip(b"=")
 
 
+def add_editable(target, source, env):
+    """
+    Add the editable stub modules to a zip file.
+    """
+    import zipfile
+    import editables
+    import os.path
+
+    src_root = os.path.abspath(env["PACKAGE_METADATA"].get("src_root", ""))
+
+    archive = zipfile.ZipFile(
+        target[0].get_path(), "a", compression=zipfile.ZIP_DEFLATED
+    )
+    lines = []
+    for f, data in editables.build_editable(src_root):
+        archive.writestr(zipfile.ZipInfo(f, time.gmtime(SOURCE_EPOCH_ZIP)[:6]), data)
+    archive.close()
+
+
 def add_manifest(target, source, env):
     """
     Add the wheel manifest.
@@ -319,6 +338,24 @@ def init_wheel(env):
         env.Command(wheel_entry_points, "pyproject.toml", egg_info_builder)
 
     targets = wheelmeta + wheel_entry_points
+
+    # experimental PEP517-style editable
+    # with filename that won't collide with our real wheel (SCons wouldn't like that)
+    editable_filename = (
+        "-".join(
+            (env["PACKAGE_NAME_SAFE"], env["PACKAGE_VERSION"], "ed." + env["WHEEL_TAG"])
+        )
+        + ".whl"
+    )
+    editable = env.Zip(
+        target=env.Dir(env["WHEEL_DIR"]).File(editable_filename),
+        source=env["DIST_INFO_PATH"],
+        ZIPROOT=env["WHEEL_PATH"],
+    )
+    env.Alias("editable", editable)
+    env.NoClean(editable)
+    env.AddPostAction(editable, Action(add_editable))
+    env.AddPostAction(editable, Action(add_manifest))
 
     return targets
 

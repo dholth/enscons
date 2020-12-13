@@ -1,12 +1,12 @@
 [build-system]
-requires = ["pytoml>=0.1", "scons", "enscons>=0.23"]
+requires = ["pytoml>=0.1", "scons", "enscons>=0.23", "editables"]
 build-backend = "enscons.api"
 
 [tool.enscons]
 name="enscons"
-version="0.23.0"
+version="0.24.0"
 packages=["enscons"]
-install_requires=["scons>=3.0.5", "pytoml>=0.1", "setuptools", "wheel", "attrs", "packaging"]
+install_requires=["scons>=3.0.5", "pytoml>=0.1", "setuptools", "wheel", "attrs", "packaging", "editables"]
 description="Tools for building Python packages with SCons"
 description_file="README.rst"
 license="MIT"
@@ -22,6 +22,7 @@ keywords=["packaging", "wheel"]
 author="Daniel Holth"
 author_email="dholth@fastmail.fm"
 url="https://bitbucket.org/dholth/enscons"
+src_root="."
 
 [tool.enscons.entry_points]
 console_scripts = ["setup2toml = enscons.setup2toml:main"]

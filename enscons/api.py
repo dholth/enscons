@@ -49,3 +49,11 @@ def build_sdist(sdist_directory, settings):
         target_name = str(target)
         if target_name.endswith(".tar.gz"):
             return os.path.basename(target_name)
+
+
+# experimental PEP517-style editable installation
+def build_wheel_for_editable(
+    wheel_directory, scheme, settings, metadata_directory=None
+):
+    sys.argv[1:] = ["--wheel-dir=" + wheel_directory, "editable"]
+    return _run("editable")
