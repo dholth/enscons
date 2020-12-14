@@ -1,32 +1,36 @@
 [build-system]
-requires = ["pytoml>=0.1", "scons", "enscons>=0.23", "editables"]
 build-backend = "enscons.api"
+requires = ["pytoml>=0.1", "enscons>=0.23"]
 
 [tool.enscons]
-name="enscons"
-version="0.24.2"
-packages=["enscons"]
-install_requires=["scons>=3.0.5", "pytoml>=0.1", "setuptools", "wheel", "attrs", "packaging", "editables"]
-description="Tools for building Python packages with SCons"
-description_file="README.rst"
-license="MIT"
-classifiers=[
+author = "Daniel Holth"
+author_email = "dholth@fastmail.fm"
+classifiers = [
   "Programming Language :: Python :: 2.7",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.5",
-  "Programming Language :: Python :: 3.6",
-  "Programming Language :: Python :: 3.7",
-  "Programming Language :: Python :: 3.8",
 ]
-keywords=["packaging", "wheel"]
-author="Daniel Holth"
-author_email="dholth@fastmail.fm"
-url="https://github.com/dholth/enscons"
-src_root="."
+description = "Tools for building Python packages with SCons"
+description_file = "README.rst"
+install_requires = [
+  "scons>=3.0.5",
+  "pytoml>=0.1",
+  "setuptools",
+  "wheel",
+  "attrs",
+  "packaging",
+  "editables;python_version>'3.0'",
+]
+keywords = ["packaging", "wheel"]
+license = "MIT"
+name = "enscons"
+packages = ["enscons"]
+src_root = "."
+url = "https://github.com/dholth/enscons"
+version = "0.24.3"
 
 [tool.enscons.entry_points]
 console_scripts = ["setup2toml = enscons.setup2toml:main"]
 
 [tool.enscons.extras_require]
-doc = ["sphinx"]
 cli = ["click"]
+doc = ["sphinx"]

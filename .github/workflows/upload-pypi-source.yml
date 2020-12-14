@@ -27,21 +27,26 @@ jobs:
         name: dist
         path: ./dist
 
-    # - name: Install twine
-    #   run: pip install twine
+        name: Python package
 
-    # - name: Publish distribution to Test PyPI
-    #   env:
-    #     TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
-    #     TWINE_USERNAME: __token__
-    #     TWINE_NON_INTERACTIVE: 1
-    #     TWINE_PASSWORD: ${{ secrets.test_pypi_password }}
-    #   run: twine upload --non-interactive --skip-existing --verbose 'dist/*'
+  build:
 
-    # - name: Publish distribution to PyPI
-    #   if: startsWith(github.event.ref, 'refs/tags')
-    #   env:
-    #     TWINE_USERNAME: __token__
-    #     TWINE_NON_INTERACTIVE: 1
-    #     TWINE_PASSWORD: ${{ secrets.pypi_password }}
-    #   run: twine upload --non-interactive --skip-existing --verbose 'dist/*'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [2.7, 3.7, 3.8, 3.9, pypy2, pypy3]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    # You can test your matrix by printing the current Python version
+    - name: Display Python version
+      run: python -c "import sys; print(sys.version)"
+    - name: Build
+      run: |
+        python -m pip install scons
+        scons -c
+        scons
