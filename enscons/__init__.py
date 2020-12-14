@@ -400,7 +400,10 @@ def _patch_source_epoch():
 
     import zipfile
 
-    _from_file = zipfile.ZipInfo.from_file
+    try:
+        _from_file = zipfile.ZipInfo.from_file
+    except AttributeError:  # Python 2?
+        return
 
     def from_file(filename, arcname=None, **kwargs):
         zinfo = _from_file(filename, arcname)
