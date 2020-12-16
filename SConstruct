@@ -39,7 +39,8 @@ env = Environment(
 py_source = Glob("enscons/*.py") + ["enscons/SConstruct.in"]
 
 sdist = env.SDist(
-    source=FindSourceFiles() + ["PKG-INFO", "setup.py", "README.rst", "CHANGES"]
+    source=FindSourceFiles()
+    + ["pyproject.toml", "PKG-INFO", "setup.py", "README.rst", "CHANGES"]
 )
 env.NoClean(sdist)
 env.Alias("sdist", sdist)

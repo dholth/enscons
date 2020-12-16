@@ -2,8 +2,8 @@
 Utilities otherwise provided by pkg_resources or wheel
 """
 
-from pkg_resources import safe_name, safe_extra, to_filename, Requirement
-
+from pkg_resources import safe_name, safe_extra, to_filename
+from packaging.requirements import Requirement
 
 # from wheel
 def requires_to_requires_dist(requirement):
@@ -17,17 +17,6 @@ def requires_to_requires_dist(requirement):
     if not requires_dist:
         return ""
     return " (%s)" % ",".join(sorted(requires_dist))
-
-
-def convert_requirements(requirements):
-    """Yield Requires-Dist: strings for parsed requirements strings."""
-    for req in requirements:
-        parsed_requirement = Requirement.parse(req)
-        spec = requires_to_requires_dist(parsed_requirement)
-        extras = ",".join(sorted(parsed_requirement.extras))
-        if extras:
-            extras = "[%s]" % extras
-        yield (parsed_requirement.project_name + extras + spec)
 
 
 def generate_requirements(extras_require):
@@ -51,8 +40,11 @@ def generate_requirements(extras_require):
                 condition = "(" + condition + ") and "
             condition += "extra == '%s'" % extra
 
-        if condition:
-            condition = " ; " + condition
-
-        for new_req in convert_requirements(depends):
-            yield "Requires-Dist", new_req + condition
+        for dependency in depends:
+            new_req = Requirement(dependency)
+            if condition:
+                if new_req.marker:
+                    new_req.marker = "(%s) and %s" % (new_req.marker, condition)
+                else:
+                    new_req.marker = condition
+            yield "Requires-Dist", str(new_req)

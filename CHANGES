@@ -1,3 +1,9 @@
+0.25.0
+------
+- Fix ;-separated package; marker handling.
+- Automatically add `editable` target, building a special wheel that redirects
+  imports for your modules to the source code.
+
 0.23.0
 ------
 - Add support for `scons develop` for editable installs, automatically builds

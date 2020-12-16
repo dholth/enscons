@@ -29,7 +29,7 @@ lib = env.Whl("platlib" if HAS_NATIVE_CODE else "purelib", py_source, root={src_
 whl = env.WhlFile(lib)
 
 # Add automatic source files, plus any other needed files.
-sdist_source = FindSourceFiles() + ["PKG-INFO", "setup.py"]
+sdist_source = FindSourceFiles() + ["PKG-INFO", "setup.py", "pyproject.toml"]
 
 sdist = env.SDist(source=sdist_source)
 

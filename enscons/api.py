@@ -11,8 +11,13 @@ import sys
 import SCons.Script.Main
 
 
-def get_build_wheel_requires(settings):
-    return []
+# optional hooks
+#
+# def get_build_wheel_requires(settings):
+#     return []
+#
+# def get_build_sdist_requires(settings):
+#     return []
 
 
 def _run(alias):
@@ -33,10 +38,6 @@ def prepare_metadata_for_build_wheel(metadata_directory, settings):
 def build_wheel(wheel_directory, settings, metadata_directory=None):
     sys.argv[1:] = ["--wheel-dir=" + wheel_directory, "bdist_wheel"]
     return _run("bdist_wheel")
-
-
-def get_build_sdist_requires(settings):
-    return []
 
 
 def build_sdist(sdist_directory, settings):
