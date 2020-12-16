@@ -38,15 +38,13 @@ env = Environment(
 
 py_source = Glob("enscons/*.py") + ["enscons/SConstruct.in"]
 
-sdist = env.SDist(
-    source=FindSourceFiles()
-    + ["pyproject.toml", "PKG-INFO", "setup.py", "README.rst", "CHANGES"]
-)
-env.NoClean(sdist)
-env.Alias("sdist", sdist)
-
 purelib = env.Whl("purelib", py_source, root=".")
 whl = env.WhlFile(purelib)
+
+# after the wheel
+sdist = env.SDist(source=FindSourceFiles() + ["PKG-INFO", "setup.py", "CHANGES"])
+env.NoClean(sdist)
+env.Alias("sdist", sdist)
 
 develop = env.Command("#DEVELOP", enscons.egg_info_targets(env), enscons.develop)
 env.Alias("develop", develop)
