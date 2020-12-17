@@ -3,32 +3,7 @@ name: Build
 on: [push, pull_request]
 
 jobs:
-  upload_source_dist:
-    name: Upload source distribution
-    runs-on: [ubuntu-latest]
-
-    steps:
-    - uses: actions/checkout@v1
-      with:
-        fetch-depth: 0
-        # we need fetch-depth 0 so setuptools_scm can resolve tags
-    - uses: actions/setup-python@v1
-      name: Install Python
-      with:
-        python-version: '3.7'
-
-    - name: Build source distribution
-      run: |
-        python setup.py
-
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v1
-      with:
-        name: dist
-        path: ./dist
-
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -49,3 +24,9 @@ jobs:
         scons -c
         scons
         python -m pip install dist/enscons*.whl
+      
+    # - name: Upload artifacts
+    #   uses: actions/upload-artifact@v1
+    #   with:
+    #     name: dist
+    #     path: ./dist
