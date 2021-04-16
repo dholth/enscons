@@ -184,43 +184,141 @@ def egg_info_builder(target, source, env):
                 f.write(command.data)
 
 
+def _is_string(obj):
+    # Python 2 compatibility.
+    return isinstance(obj, type("")) or isinstance(obj, type(u""))
+
+
+def _read_file(filename, encoding="utf-8"):
+    with codecs.open(filename, mode="r", encoding="utf-8") as f:
+        return f.read()
+
+
+def _write_header(f, name, value):
+    lines = value.splitlines() or [""]
+    f.write("%s: %s\n" % (name, lines[0]))
+    for line in lines[1:]:
+        f.write("  %s\n" % line)
+
+
+def _write_contacts(f, header_name, header_email, contacts):
+    if len(contacts) == 1:
+        if "name" in contacts[0]:
+            _write_header(f, header_name, contacts[0]["name"])
+        if "email" in contacts[0]:
+            _write_header(f, header_email, contacts[0]["email"])
+    else:
+        value = ", ".join(
+            contact["email"] if "name" not in contact else \
+            contact["name"] if "email" not in contact else \
+            "%(name)s <%(email)s>" % contact
+            for contact in contacts
+        )
+        emails = any("email" in contact for contact in contacts)
+        _write_header(f, header_email if emails else header_name, value)
+
+
+def metadata_source(env):
+    metadata = env["PACKAGE_METADATA"]
+    source = ["pyproject.toml"]
+    # The logic here duplicates parts of metadata_builder().
+    # Maybe the two should be unified.
+    if "license" in metadata:
+        if not _is_string(metadata["license"]):
+            if not ("text" in metadata["license"]):
+                source.append(metadata["license"]["file"])
+    if "readme" in metadata:
+        if _is_string(metadata["readme"]):
+            source.append(metadata["readme"])
+        else:
+            if "file" in metadata["readme"]:
+                source.append(metadata["readme"]["file"])
+    elif "description_file" in metadata:
+        source.append(metadata["description_file"])
+    return source
+
+
 def metadata_builder(target, source, env):
     metadata = env["PACKAGE_METADATA"]
     with codecs.open(target[0].get_path(), mode="w", encoding="utf-8") as f:
-        f.write("Metadata-Version: 2.0\n")
+        f.write("Metadata-Version: 2.1\n")
+        # Key meanings in accordance with PEP 621, with minor
+        # extensions for backward compatibility. The "dynamic"
+        # key is not implemented.
         f.write("Name: %s\n" % metadata["name"])
         f.write("Version: %s\n" % metadata["version"])
-        # Optional values:
-        metadata = defaultdict(lambda: "UNKNOWN", **metadata)
-        f.write("Summary: %s\n" % metadata["description"])
-        f.write("Home-Page: %s\n" % metadata["url"])
-        # XXX expand author to author, author-email with email.utils.parseaddr
-        # XXX Author-email can contain both author's name and e-mail
-        f.write("Author: %s\n" % metadata["author"])
-        f.write("Author-email: %s\n" % metadata["author_email"])
-        f.write("License: %s\n" % metadata["license"])
-        if not isinstance(metadata["keywords"], list):
-            metadata["keywords"] = [metadata["keywords"]]
-        f.write("Keywords: %s\n" % " ".join(metadata["keywords"]))
-        f.write("Platform: %s\n" % metadata["platform"])
+        if "description" in metadata:
+            _write_header(f, "Summary", metadata["description"])
+        if "requires-python" in metadata:
+            _write_header(f, "Requires-Python", metadata["requires-python"])
+        if "license" in metadata:
+            _write_header(f, "License",
+                metadata["license"] if _is_string(metadata["license"]) else \
+                metadata["license"]["text"] if "text" in metadata["license"] else \
+                _read_file(metadata["license"]["file"]))
+        if "authors" in metadata:
+            _write_contacts(f, "Author", "Author-email", metadata["authors"])
+        else:
+            if "author" in metadata:
+                _write_header(f, "Author", metadata["author"])
+            if "author_email" in metadata:
+                _write_header(f, "Author-email", metadata["author_email"])
+        if "maintainers" in metadata:
+            _write_contacts(f, "Maintainers", "Maintainer-email", metadata["maintainers"])
+        if "keywords" in metadata:
+            _write_header(f, "Keywords",
+                metadata["keywords"] if _is_string(metadata["keywords"]) else \
+                ",".join(metadata["keywords"]))
         for classifier in metadata.get("classifiers", []):
-            f.write("Classifier: %s\n" % classifier)
-
+            _write_header(f, "Classifier", classifier)
+        if "url" in metadata:
+            # This is not present in PEP 621.
+            _write_header(f, "Home-Page", metadata["url"])
+        for label, url in metadata.get("urls", {}).items():
+            _write_header(f, "Project-URL", "%s, %s" % (label, url))
+        if "platform" in metadata:
+            # Backward compatibility only.
+            _write_header(f, "Platform", metadata["platform"])
+        full_requires = {}
+        full_requires.update(metadata.get("extras_require", {}))
+        full_requires.update(metadata.get("optional-dependencies", {}))
         # install_requires is equivalent to extras_require[""][...]
-        full_requires = metadata.get("extras_require", {})
-        full_requires[""] = full_requires.get("", []) + metadata.get(
-            "install_requires", []
-        )
-        print(full_requires, metadata)
+        if "install_requires" in metadata:
+            full_requires[""] = metadata["install_requires"]
+        if "dependencies" in metadata:
+            full_requires[""] = metadata["dependencies"]
         for requirement in generate_requirements(full_requires):
             f.write("%s: %s\n" % requirement)
-
-        if "description_file" in metadata:
-            with codecs.open(
-                metadata["description_file"], "r", encoding="utf-8"
-            ) as description:
-                f.write("\n\n")
-                f.write(description.read())
+        if "readme" in metadata:
+            if _is_string(metadata["readme"]):
+                filename = metadata["readme"]
+                contenttype = None
+                content = _read_file(filename)
+            else:
+                if "file" in metadata["readme"]:
+                    filename = metadata["readme"]["file"]
+                    contenttype = metadata["readme"].get("content-type", None)
+                    encoding = metadata["readme"].get("encoding", "utf-8")
+                    content = _read_file(filename, encoding=encoding)
+                else:
+                    filename = None
+                    contenttype = metadata["readme"].get("content-type", None)
+                    content = metadata["readme"]["text"]
+            if contenttype is None and filename:
+                lowername = filename.lower()
+                contenttype = \
+                    "text/x-rst" if lowername.endswith(".rst") else \
+                    "text/markdown" if lowername.endswith(".md") else \
+                    "text/plain" if lowername.endswith(".txt") else \
+                    None
+            if contenttype:
+                _write_header(f, "Description-Content-Type", contenttype)
+            f.write("\n\n")
+            f.write(content)
+        elif "description_file" in metadata:
+            # Backward compatibility.
+            f.write("\n\n")
+            f.write(_read_file(metadata["description_file"]))
 
 
 import base64
@@ -291,11 +389,8 @@ Tag: %s
 
 def wheel_metadata(env):
     """Build the wheel metadata."""
-    metadata_source = ["pyproject.toml"]
-    if env["PACKAGE_METADATA"].get("description_file", ""):
-        metadata_source.append(env["PACKAGE_METADATA"].get("description_file"))
     metadata = env.Command(
-        env["DIST_INFO_PATH"].File("METADATA"), metadata_source, metadata_builder
+        env["DIST_INFO_PATH"].File("METADATA"), metadata_source(env), metadata_builder
     )
     wheelfile = env.Command(
         env["DIST_INFO_PATH"].File("WHEEL"), "pyproject.toml", wheelmeta_builder
@@ -450,7 +545,7 @@ def SDist(env, target=None, source=None):
     env.Alias("egg_info", egg_info)
 
     pkg_info = env.Command(
-        "PKG-INFO", egg_info_targets(env)[0].get_path(), Copy("$TARGET", "$SOURCE")
+        "PKG-INFO", metadata_source(env), metadata_builder
     )
 
     src_type = "src_targz"
