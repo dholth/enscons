@@ -190,7 +190,7 @@ def _is_string(obj):
 
 
 def _read_file(filename, encoding="utf-8"):
-    with codecs.open(filename, mode="r", encoding="utf-8") as f:
+    with codecs.open(filename, mode="r", encoding=encoding) as f:
         return f.read()
 
 
@@ -264,7 +264,7 @@ def metadata_builder(target, source, env):
             if "author_email" in metadata:
                 _write_header(f, "Author-email", metadata["author_email"])
         if "maintainers" in metadata:
-            _write_contacts(f, "Maintainers", "Maintainer-email", metadata["maintainers"])
+            _write_contacts(f, "Maintainer", "Maintainer-email", metadata["maintainers"])
         if "keywords" in metadata:
             _write_header(f, "Keywords",
                 metadata["keywords"] if _is_string(metadata["keywords"]) else \
