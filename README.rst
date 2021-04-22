@@ -49,7 +49,7 @@ Enscons is most useful if you want to use SCons.  SCons has superpowers that dis
 
   Enscons is well under 1,000 lines of code, but implements ``wheel``, ``setup.py``, ``setup.py develop``, and other tricky bits that can seem like magic.  The important parts of distutils are simple.  Enscons might be a useful reference for someone who would like to implement the same features on top of a different general-purpose build system.
 
-using enscons
+Using enscons
 =============
 
 Install enscons with ``pip install enscons``.
@@ -60,13 +60,9 @@ Build the project by running ``python -m SCons``.
 
 If you are not starting from an existing ``setup.py``, get enscons' source code, and copy ``pyproject.toml``, ``SConstruct``, and ``setup.py`` into your own project.
 
-Edit pyproject.toml with your own setup.py-style arguments. Enscons
-only uses those arguments that affect the static metadata, PKG-INFO or
-METADATA, and not build-related arguments such as C extensions.
-
-Recognized keys: name, version, description, description_file, url,
-author, author_email, license, keywords, platform, classifiers,
-install_requires, extras_require, src_root.
+Edit ``pyproject.toml`` with your own metadata keys in `PEP 621 <https://www.python.org/dev/peps/pep-0621/>`_ format.
+Enscons will use those keys to generate the static metadata files (``PKG-INFO`` and ``METADATA``).
+In addition to PEP 621, some ``setup.py``-style keys are recognized: ``description_file`` (superceeded by ``readme``), ``url``, ``author`` and ``author_email`` (superceeded by ``authors``), ``license`` as a string, ``keywords`` as a string, ``platform``, ``install_requires`` (superceeded by ``dependencies``), ``extras_require`` (superceeded by ``optional-dependencies``), and ``src_root``.
 
 Example enscons projects
 ------------------------

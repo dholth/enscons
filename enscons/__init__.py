@@ -132,56 +132,66 @@ def develop(env, target=None, source=None):
     enscons.setup.develop(env["EGG_INFO_PREFIX"] or ".")
 
 
-import setuptools.command.egg_info
+def requires_txt_builder(target, source, env):
+    """
+    Build requires.txt from PACKAGE_METADATA variable.
+    """
+    metadata = env["PACKAGE_METADATA"]
+    full_requires = {}
+    full_requires.update(metadata.get("extras_require", {}))
+    full_requires.update(metadata.get("optional-dependencies", {}))
+    # install_requires is equivalent to extras_require[""][...]
+    if "install_requires" in metadata:
+        full_requires[""] = metadata["install_requires"]
+    if "dependencies" in metadata:
+        full_requires[""] = metadata["dependencies"]
+    with codecs.open(target[0].get_path(), mode="w", encoding="utf-8") as f:
+        for group, dependencies in sorted(full_requires.items()):
+            if group:
+                f.write("\n[%s]\n" % group)
+            for dep in dependencies:
+                f.write("%s\n" % dep)
 
 
-class Command(object):
-    """Mock object to allow setuptools to write files for us"""
-
-    def __init__(self, distribution):
-        self.distribution = distribution
-
-    def write_or_delete_file(self, basename, filename, data, _=True):
-        self.data = data
-
-
-class Distribution(object):
-    def __init__(self, metadata):
-        self.__dict__ = metadata
+def entry_points_builder(target, source, env):
+    """
+    Build entry_points.txt from PACKAGE_METADATA variable.
+    """
+    metadata = env["PACKAGE_METADATA"]
+    entry_points = {}
+    if "entry_points" in metadata:
+        entry_points.update(metadata["entry_points"])
+    if "scripts" in metadata:
+        entry_points["console_scripts"] = metadata["scripts"]
+    if "gui-scripts" in metadata:
+        entry_points["gui_scripts"] = metadata["gui-scripts"]
+    with codecs.open(target[0].get_path(), mode="w", encoding="utf-8") as f:
+        for group, items in sorted(entry_points.items()):
+            f.write("[%s]\n" % group)
+            if isinstance(items, list):
+                # Non-PEP 621 extension: entry_point tables as lists of strings
+                for item in items:
+                    f.write("%s\n" % item)
+            else:
+                for key, value in sorted(items.items()):
+                    f.write("%s = %s\n" % (key, value))
 
 
 def egg_info_builder(target, source, env):
     """
     Minimum egg_info. To be used only by pip to get dependencies.
     """
-    # this command helps trick setuptools into doing work for us
     metadata = env["PACKAGE_METADATA"]
-
-    def ensure_property(key, default):
-        metadata[key] = metadata.get(key, default)
-
-    ensure_property("install_requires", [])
-    ensure_property("extras_require", {})
-    ensure_property("entry_points", {})
-
-    command = Command(Distribution(env["PACKAGE_METADATA"]))
-
     for dnode in env.arg2nodes(target):
-        with open(dnode.get_path(), "w") as f:
-            if dnode.name == "PKG-INFO":
+        if dnode.name == "PKG-INFO":
+            with open(dnode.get_path(), "w") as f:
                 f.write("Metadata-Version: 1.1\n")
                 f.write("Name: %s\n" % env["PACKAGE_NAME"])
                 f.write("Version: %s\n" % env["PACKAGE_VERSION"])
-            elif dnode.name == "requires.txt":
-                setuptools.command.egg_info.write_requirements(
-                    command, dnode.name, "spamalot"
-                )
-                f.write(command.data)
-            elif dnode.name == "entry_points.txt":
-                setuptools.command.egg_info.write_entries(
-                    command, dnode.name, "spamalot"
-                )
-                f.write(command.data)
+        elif dnode.name == "requires.txt":
+            requires_txt_builder([dnode], source, env)
+        elif dnode.name == "entry_points.txt":
+            entry_points_builder([dnode], source, env)
 
 
 def _is_string(obj):
@@ -259,6 +269,7 @@ def metadata_builder(target, source, env):
         if "authors" in metadata:
             _write_contacts(f, "Author", "Author-email", metadata["authors"])
         else:
+            # Non-PEP 621 keys.
             if "author" in metadata:
                 _write_header(f, "Author", metadata["author"])
             if "author_email" in metadata:
@@ -395,7 +406,10 @@ def wheel_metadata(env):
     wheelfile = env.Command(
         env["DIST_INFO_PATH"].File("WHEEL"), "pyproject.toml", wheelmeta_builder
     )
-    return [metadata, wheelfile]
+    entry_points = env.Command(
+        env["DIST_INFO_PATH"].File("entry_points.txt"), "pyproject.toml", entry_points_builder
+    )
+    return [metadata, wheelfile, entry_points]
 
 
 def init_wheel(env):
@@ -424,15 +438,7 @@ def init_wheel(env):
     env["WHEEL_FILE"] = env.Dir(wheel_target_dir).File(wheel_filename)
 
     # Write WHEEL and METADATA
-    wheelmeta = wheel_metadata(env)
-
-    # Write entry_points.txt if needed
-    wheel_entry_points = []
-    if env["PACKAGE_METADATA"].get("entry_points"):
-        wheel_entry_points = [env["DIST_INFO_PATH"].File("entry_points.txt")]
-        env.Command(wheel_entry_points, "pyproject.toml", egg_info_builder)
-
-    targets = wheelmeta + wheel_entry_points
+    targets = wheel_metadata(env)
 
     # experimental PEP517-style editable
     # with filename that won't collide with our real wheel (SCons wouldn't like that)
@@ -544,11 +550,7 @@ def SDist(env, target=None, source=None):
     env.Clean(egg_info, env["EGG_INFO_PATH"])
     env.Alias("egg_info", egg_info)
 
-    pkg_info = env.Command(
-        "PKG-INFO", metadata_source(env), metadata_builder
-    )
-
-    src_type = "src_targz"
+    pkg_info = env.Command("PKG-INFO", metadata_source(env), metadata_builder)
 
     # also the root directory name inside the archive
     target_prefix = "-".join((env["PACKAGE_NAME"], env["PACKAGE_VERSION"]))
