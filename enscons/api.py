@@ -42,14 +42,7 @@ def build_wheel(wheel_directory, settings, metadata_directory=None):
 
 def build_sdist(sdist_directory, settings):
     sys.argv[1:] = ["--dist-dir=" + sdist_directory, "sdist"]
-    try:
-        SCons.Script.Main.main()
-    except SystemExit as e:
-        pass
-    for target in SCons.Script.DEFAULT_TARGETS:
-        target_name = str(target)
-        if target_name.endswith(".tar.gz"):
-            return os.path.basename(target_name)
+    return _run("sdist")
 
 
 # experimental PEP517-style editable installation
