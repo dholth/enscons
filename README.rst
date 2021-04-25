@@ -13,7 +13,7 @@ What does enscons provide?
 
 Enscons provides a small amount of code to generate wheels, do development installs, generate egg-info and dist-info metadata, do basic conversion of setup.py to pyproject.toml and SConstruct, and configure SCons' compilers with the flags distutils would use to compile C extensions.  
 
-Enscons provides a tiny setup.py shim that automatically installs SCons into an isolated build directory as long as pip is available, so enscons-generated sdists do not require enscons to be pre-installed, nor do they pollute the target environment with unwanted build systems.  (This shim will be a no-op once `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_ is available.)
+Enscons implents a `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_ build backend, and a setup.py shim that can be used for `pip install -e .`
 
 Enscons provides code to translate from the arguments pip and tox send to setup.py to something SCons can use, and then executes the SConstruct, the SCons analog to a Makefile. 
 

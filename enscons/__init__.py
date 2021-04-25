@@ -194,9 +194,15 @@ def egg_info_builder(target, source, env):
             entry_points_builder([dnode], source, env)
 
 
+try:
+    basestring
+except NameError:
+    basestring = str
+
+
 def _is_string(obj):
     # Python 2 compatibility.
-    return isinstance(obj, type("")) or isinstance(obj, type(u""))
+    return isinstance(obj, basestring)
 
 
 def _read_file(filename, encoding="utf-8"):
@@ -219,9 +225,11 @@ def _write_contacts(f, header_name, header_email, contacts):
             _write_header(f, header_email, contacts[0]["email"])
     else:
         value = ", ".join(
-            contact["email"] if "name" not in contact else \
-            contact["name"] if "email" not in contact else \
-            "%(name)s <%(email)s>" % contact
+            contact["email"]
+            if "name" not in contact
+            else contact["name"]
+            if "email" not in contact
+            else "%(name)s <%(email)s>" % contact
             for contact in contacts
         )
         emails = any("email" in contact for contact in contacts)
@@ -262,10 +270,15 @@ def metadata_builder(target, source, env):
         if "requires-python" in metadata:
             _write_header(f, "Requires-Python", metadata["requires-python"])
         if "license" in metadata:
-            _write_header(f, "License",
-                metadata["license"] if _is_string(metadata["license"]) else \
-                metadata["license"]["text"] if "text" in metadata["license"] else \
-                _read_file(metadata["license"]["file"]))
+            _write_header(
+                f,
+                "License",
+                metadata["license"]
+                if _is_string(metadata["license"])
+                else metadata["license"]["text"]
+                if "text" in metadata["license"]
+                else _read_file(metadata["license"]["file"]),
+            )
         if "authors" in metadata:
             _write_contacts(f, "Author", "Author-email", metadata["authors"])
         else:
@@ -275,11 +288,17 @@ def metadata_builder(target, source, env):
             if "author_email" in metadata:
                 _write_header(f, "Author-email", metadata["author_email"])
         if "maintainers" in metadata:
-            _write_contacts(f, "Maintainer", "Maintainer-email", metadata["maintainers"])
+            _write_contacts(
+                f, "Maintainer", "Maintainer-email", metadata["maintainers"]
+            )
         if "keywords" in metadata:
-            _write_header(f, "Keywords",
-                metadata["keywords"] if _is_string(metadata["keywords"]) else \
-                ",".join(metadata["keywords"]))
+            _write_header(
+                f,
+                "Keywords",
+                metadata["keywords"]
+                if _is_string(metadata["keywords"])
+                else ",".join(metadata["keywords"]),
+            )
         for classifier in metadata.get("classifiers", []):
             _write_header(f, "Classifier", classifier)
         if "url" in metadata:
@@ -317,11 +336,15 @@ def metadata_builder(target, source, env):
                     content = metadata["readme"]["text"]
             if contenttype is None and filename:
                 lowername = filename.lower()
-                contenttype = \
-                    "text/x-rst" if lowername.endswith(".rst") else \
-                    "text/markdown" if lowername.endswith(".md") else \
-                    "text/plain" if lowername.endswith(".txt") else \
-                    None
+                contenttype = (
+                    "text/x-rst"
+                    if lowername.endswith(".rst")
+                    else "text/markdown"
+                    if lowername.endswith(".md")
+                    else "text/plain"
+                    if lowername.endswith(".txt")
+                    else None
+                )
             if contenttype:
                 _write_header(f, "Description-Content-Type", contenttype)
             f.write("\n\n")
@@ -407,7 +430,9 @@ def wheel_metadata(env):
         env["DIST_INFO_PATH"].File("WHEEL"), "pyproject.toml", wheelmeta_builder
     )
     entry_points = env.Command(
-        env["DIST_INFO_PATH"].File("entry_points.txt"), "pyproject.toml", entry_points_builder
+        env["DIST_INFO_PATH"].File("entry_points.txt"),
+        "pyproject.toml",
+        entry_points_builder,
     )
     return [metadata, wheelfile, entry_points]
 
@@ -568,6 +593,7 @@ def SDist(env, target=None, source=None):
         TARGID=0,
         TARMTIME=SOURCE_EPOCH_TGZ,
     )
+    env.Alias("sdist", sdist)
     return sdist
 
 
