@@ -17,7 +17,7 @@ install_requires = [
   "setuptools",
   "wheel",
   "attrs",
-  "packaging",
+  "packaging>=20.5",
   "editables;python_version>'3.0'",
 ]
 keywords = ["packaging", "wheel"]

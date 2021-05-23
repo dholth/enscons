@@ -80,7 +80,7 @@ def get_binary_tag():
     """
     Return most-specific binary extension wheel tag 'interpreter-abi-arch'
     """
-    from . import tags
+    from packaging import tags
 
     return str(next(tag for tag in tags.sys_tags() if not "manylinux" in tag.platform))
 
@@ -94,12 +94,12 @@ def get_universal_tag():
 
 def get_abi3_tag():
     """
-    Return first abi3 tag, or None if not supported.
+    Return first abi3 tag, or the first binary tag if abi3 is not supported.
     """
-    from . import tags
+    from packaging import tags
 
     try:
-        return str(next(tag for tag in tags.sys_tags() if "abi3" in tag.abi))
+        return str(next(tag for tag in tags.sys_tags() if "abi3" in tag.abi and "manylinux" not in tag.platform))
     except StopIteration:
         return get_binary_tag()
 
