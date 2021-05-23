@@ -99,7 +99,7 @@ def get_abi3_tag():
     from packaging import tags
 
     try:
-        return str(next(tag for tag in tags.sys_tags() if "abi3" in tag.abi))
+        return str(next(tag for tag in tags.sys_tags() if "abi3" in tag.abi and "manylinux" not in tag.platform))
     except StopIteration:
         return get_binary_tag()
 
