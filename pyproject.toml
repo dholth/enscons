@@ -18,7 +18,7 @@ install_requires = [
   "wheel",
   "attrs",
   "packaging>=20.5",
-  "editables;python_version>'3.0'",
+  "editables==0.2;python_version>'3.0'",
 ]
 keywords = ["packaging", "wheel"]
 license = "MIT"
