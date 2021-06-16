@@ -481,10 +481,7 @@ def init_wheel(env):
     # experimental PEP517-style editable
     # with filename that won't collide with our real wheel (SCons wouldn't like that)
     editable_filename = (
-        "-".join(
-            (env["PACKAGE_NAMEVER"], "ed." + env["WHEEL_TAG"])
-        )
-        + ".whl"
+        "-".join((env["PACKAGE_NAMEVER"], "ed." + env["WHEEL_TAG"])) + ".whl"
     )
     editable = env.Zip(
         target=env.Dir(env["WHEEL_DIR"]).File(editable_filename),
@@ -498,9 +495,7 @@ def init_wheel(env):
 
     editable_dist_info = env.Dir("#build/editable/${PACKAGE_NAMEVER}.dist-info")
     # editable may need an extra dependency, so it gets its own dist-info directory.
-    env.Command(
-       editable_dist_info , env["DIST_INFO_PATH"], Copy("$TARGET", "$SOURCE")
-    )
+    env.Command(editable_dist_info, env["DIST_INFO_PATH"], Copy("$TARGET", "$SOURCE"))
 
     metadata2 = env.Command(
         editable_dist_info.File("METADATA"), metadata_source(env), metadata_builder
