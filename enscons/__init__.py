@@ -550,7 +550,7 @@ def _patch_source_epoch():
         return
 
     def from_file(filename, arcname=None, **kwargs):
-        zinfo = _from_file(filename, arcname)
+        zinfo = _from_file(filename, arcname, **kwargs)
         zinfo.date_time = time.gmtime(SOURCE_EPOCH_ZIP)[0:6]
         return zinfo
 
