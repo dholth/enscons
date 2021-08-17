@@ -17,7 +17,7 @@ install_requires = [
   "setuptools",
   "wheel",
   "attrs",
-  "packaging>=20.5",
+  "packaging>=20.9",
   "editables==0.2;python_version>'3.0'",
 ]
 keywords = ["packaging", "wheel"]
@@ -26,7 +26,7 @@ name = "enscons"
 packages = ["enscons"]
 src_root = "."
 url = "https://github.com/dholth/enscons"
-version = "0.27.0"
+version = "0.28.0"
 
 [tool.enscons.entry_points]
 console_scripts = ["setup2toml = enscons.setup2toml:main"]
