@@ -1,3 +1,8 @@
+0.28.0
+------
+- Update editables for approved PEP 660
+- Fix zipfile **kwargs bug
+
 0.27.0
 ------
 - Fix get_abi3_tag() to avoid manylinux
