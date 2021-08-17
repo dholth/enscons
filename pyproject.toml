@@ -26,7 +26,7 @@ name = "enscons"
 packages = ["enscons"]
 src_root = "."
 url = "https://github.com/dholth/enscons"
-version = "0.26.0"
+version = "0.27.0"
 
 [tool.enscons.entry_points]
 console_scripts = ["setup2toml = enscons.setup2toml:main"]
