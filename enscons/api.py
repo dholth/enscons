@@ -45,9 +45,7 @@ def build_sdist(sdist_directory, settings):
     return _run("sdist")
 
 
-# experimental PEP517-style editable installation
-def build_wheel_for_editable(
-    wheel_directory, scheme, settings, metadata_directory=None
-):
+# PEP 660 editable installation
+def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
     sys.argv[1:] = ["--wheel-dir=" + wheel_directory, "editable"]
     return _run("editable")
