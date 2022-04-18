@@ -99,7 +99,13 @@ def get_abi3_tag():
     from packaging import tags
 
     try:
-        return str(next(tag for tag in tags.sys_tags() if "abi3" in tag.abi and "manylinux" not in tag.platform))
+        return str(
+            next(
+                tag
+                for tag in tags.sys_tags()
+                if "abi3" in tag.abi and "manylinux" not in tag.platform
+            )
+        )
     except StopIteration:
         return get_binary_tag()
 
@@ -371,13 +377,17 @@ def add_editable(target, source, env):
     import editables
     import os.path
 
+    project_name = env["PACKAGE_METADATA"].get("name")
     src_root = os.path.abspath(env["PACKAGE_METADATA"].get("src_root", ""))
+
+    project = editables.EditableProject(project_name, src_root)
+    project.add_to_path(src_root)
 
     archive = zipfile.ZipFile(
         target[0].get_path(), "a", compression=zipfile.ZIP_DEFLATED
     )
     lines = []
-    for f, data in editables.build_editable(src_root):
+    for f, data in project.files():
         archive.writestr(zipfile.ZipInfo(f, time.gmtime(SOURCE_EPOCH_ZIP)[:6]), data)
     archive.close()
 
@@ -441,14 +451,17 @@ def init_wheel(env):
     """
     Create a wheel and its metadata using Environment env.
     """
-    wheel_filename = (
-        "-".join((env["PACKAGE_NAME_SAFE"], env["PACKAGE_VERSION"], env["WHEEL_TAG"]))
-        + ".whl"
+    env["PACKAGE_NAMEVER"] = "-".join(
+        (env["PACKAGE_NAME_SAFE"], env["PACKAGE_VERSION"])
     )
+
+    wheel_filename = "-".join((env["PACKAGE_NAMEVER"], env["WHEEL_TAG"])) + ".whl"
     wheel_target_dir = env.Dir(env["WHEEL_DIR"])
 
     # initial # here in path means its relative to top-level sconstruct
     env["WHEEL_PATH"] = env.get("WHEEL_PATH", env.Dir("#build/wheel/"))
+    env["DIST_INFO_NAME"] = env["PACKAGE_NAMEVER"] + ".dist-info"
+
     env["DIST_INFO_PATH"] = env["WHEEL_PATH"].Dir(
         env["PACKAGE_NAME_SAFE"] + "-" + env["PACKAGE_VERSION"] + ".dist-info"
     )
@@ -468,10 +481,7 @@ def init_wheel(env):
     # experimental PEP517-style editable
     # with filename that won't collide with our real wheel (SCons wouldn't like that)
     editable_filename = (
-        "-".join(
-            (env["PACKAGE_NAME_SAFE"], env["PACKAGE_VERSION"], "ed." + env["WHEEL_TAG"])
-        )
-        + ".whl"
+        "-".join((env["PACKAGE_NAMEVER"], "ed." + env["WHEEL_TAG"])) + ".whl"
     )
     editable = env.Zip(
         target=env.Dir(env["WHEEL_DIR"]).File(editable_filename),
@@ -482,6 +492,14 @@ def init_wheel(env):
     env.NoClean(editable)
     env.AddPostAction(editable, Action(add_editable))
     env.AddPostAction(editable, Action(add_manifest))
+
+    editable_dist_info = env.Dir("#build/editable/${PACKAGE_NAMEVER}.dist-info")
+    # editable may need an extra dependency, so it gets its own dist-info directory.
+    env.Command(editable_dist_info, env["DIST_INFO_PATH"], Copy("$TARGET", "$SOURCE"))
+
+    metadata2 = env.Command(
+        editable_dist_info.File("METADATA"), metadata_source(env), metadata_builder
+    )
 
     return targets
 
@@ -532,7 +550,7 @@ def _patch_source_epoch():
         return
 
     def from_file(filename, arcname=None, **kwargs):
-        zinfo = _from_file(filename, arcname)
+        zinfo = _from_file(filename, arcname, **kwargs)
         zinfo.date_time = time.gmtime(SOURCE_EPOCH_ZIP)[0:6]
         return zinfo
 

@@ -21,7 +21,7 @@ def get_install_command(name):
 def get_install_paths(name):
     """
     Return the (distutils) install paths for the named dist.
-    
+
     A dict with ('purelib', 'platlib', 'headers', 'scripts', 'data') keys.
     """
     paths = {}

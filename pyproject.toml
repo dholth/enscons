@@ -1,7 +1,7 @@
 [project]
 name = "enscons"
 description = "Tools for building Python packages with SCons"
-version = "0.26.0"
+version = "0.28.0"
 
 authors = [
     {name = "Daniel Holth", email = "dholth@fastmail.fm"}
@@ -16,8 +16,8 @@ dependencies = [
   "setuptools",
   "wheel",
   "attrs",
-  "packaging>=20.5",
-  "editables;python_version>'3.0'",
+  "packaging>=20.9",
+  "editables==0.2;python_version>'3.0'",
 ]
 keywords = ["packaging", "wheel"]
 license = "MIT"

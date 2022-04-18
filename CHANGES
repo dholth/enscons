@@ -1,3 +1,17 @@
+0.28.0
+------
+- Update editables for approved PEP 660
+- Fix zipfile **kwargs bug
+
+0.27.0
+------
+- Fix get_abi3_tag() to avoid manylinux
+- Use packaging.tags instead of own tags implementation
+
+0.26.0
+------
+- Support PEP 621 metadata
+
 0.25.0
 ------
 - Fix ;-separated package; marker handling.
