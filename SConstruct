@@ -26,7 +26,7 @@ import pytoml as toml
 import enscons
 import sys
 
-metadata = dict(toml.load(open("pyproject.toml")))["tool"]["enscons"]
+metadata = toml.load(open("pyproject.toml"))["project"]
 
 full_tag = "py2.py3-none-any"
 

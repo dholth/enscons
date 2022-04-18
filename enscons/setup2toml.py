@@ -141,7 +141,7 @@ def main():
     pyproject = pytoml.dumps(
         OrderedDict(
             [
-                ["tool", {"enscons": ordered_arguments}],
+                ["project", ordered_arguments],
                 [
                     "build-system",
                     {
