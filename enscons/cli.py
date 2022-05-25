@@ -47,7 +47,7 @@ def info():
 @click.command()
 @click.option("--metadata-dir", default="dist", help="Target directory for wheel")
 def metadata(metadata_dir):
-    """Prepare metadata fro a wheel."""
+    """Prepare metadata from a wheel."""
     metadata_name = Backend().prepare_metadata_for_build_wheel(metadata_dir, {})
     click.echo(os.path.join(metadata_dir, metadata_name) + "\n")
 

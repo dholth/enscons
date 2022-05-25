@@ -13,7 +13,7 @@ What does enscons provide?
 
 Enscons provides a small amount of code to generate wheels, do development installs, generate egg-info and dist-info metadata, do basic conversion of setup.py to pyproject.toml and SConstruct, and configure SCons' compilers with the flags distutils would use to compile C extensions.  
 
-Enscons implents a `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_ build backend, and a setup.py shim that can be used for `pip install -e .`
+Enscons implements a `PEP 518 <https://www.python.org/dev/peps/pep-0518/>`_ build backend, and a setup.py shim that can be used for `pip install -e .`
 
 Enscons provides code to translate from the arguments pip and tox send to setup.py to something SCons can use, and then executes the SConstruct, the SCons analog to a Makefile. 
 
@@ -62,7 +62,7 @@ If you are not starting from an existing ``setup.py``, get enscons' source code,
 
 Edit ``pyproject.toml`` with your own metadata keys in `PEP 621 <https://www.python.org/dev/peps/pep-0621/>`_ format.
 Enscons will use those keys to generate the static metadata files (``PKG-INFO`` and ``METADATA``).
-In addition to PEP 621, some ``setup.py``-style keys are recognized: ``description_file`` (superceeded by ``readme``), ``url``, ``author`` and ``author_email`` (superceeded by ``authors``), ``license`` as a string, ``keywords`` as a string, ``platform``, ``install_requires`` (superceeded by ``dependencies``), ``extras_require`` (superceeded by ``optional-dependencies``), and ``src_root``.
+In addition to PEP 621, some ``setup.py``-style keys are recognized: ``description_file`` (superseded by ``readme``), ``url``, ``author`` and ``author_email`` (superseded by ``authors``), ``license`` as a string, ``keywords`` as a string, ``platform``, ``install_requires`` (superseded by ``dependencies``), ``extras_require`` (superseded by ``optional-dependencies``), and ``src_root``.
 
 Example enscons projects
 ------------------------
