@@ -3,9 +3,7 @@ name = "enscons"
 description = "Tools for building Python packages with SCons"
 version = "0.28.0"
 
-authors = [
-    {name = "Daniel Holth", email = "dholth@fastmail.fm"}
-]
+authors = [{ name = "Daniel Holth", email = "dholth@fastmail.fm" }]
 classifiers = [
   "Programming Language :: Python :: 2.7",
   "Programming Language :: Python :: 3",
@@ -28,11 +26,11 @@ url = "https://github.com/dholth/enscons"
 
 [project.optional-dependencies]
 cli = ["click"]
-doc = ["sphinx"]
+docs = ["furo", "sphinx", "myst-parser", "mdit-py-plugins>=0.3.0"]
 
 [project.scripts]
 setup2toml = "enscons.setup2toml:main"
 
 [build-system]
 build-backend = "enscons.api"
-requires = ["pytoml>=0.1"] # enscons users add "enscons>=0.28" to this list
+requires = ["pytoml>=0.1"]    # enscons users add "enscons>=0.28" to this list
