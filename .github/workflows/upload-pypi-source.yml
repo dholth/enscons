@@ -7,12 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [2.7, 3.7, 3.8, 3.9, pypy2, pypy3]
+        python-version: ["2.7", "3.8", "3.9", "3.10", pypy2, pypy3]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     # You can test your matrix by printing the current Python version
@@ -24,7 +24,7 @@ jobs:
         scons -c
         scons
         python -m pip install dist/enscons*.whl
-      
+
     # - name: Upload artifacts
     #   uses: actions/upload-artifact@v1
     #   with:
