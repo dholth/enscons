@@ -17,8 +17,7 @@ jobs:
           cache: "pip"
       - name: Build Documentation
         run: |
-          pip install --no-build-isolation -e .
-          pip install enscons[docs]
+          pip install .[docs]
           cd docs
           make html
       - name: Upload artifact
