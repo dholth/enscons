@@ -28,7 +28,7 @@ url = "https://github.com/dholth/enscons"
 
 [project.optional-dependencies]
 cli = ["click"]
-doc = ["sphinx"]
+doc = ["sphinx", "sphinx-rtd-theme"]
 
 [project.scripts]
 setup2toml = "enscons.setup2toml:main"
