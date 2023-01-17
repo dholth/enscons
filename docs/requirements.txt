@@ -1,2 +1,5 @@
-sphinx==5.3.0
-sphinx-rtd-theme==1.1.1
+# docs
+furo
+sphinx
+myst-parser
+mdit-py-plugins>=0.3.0
