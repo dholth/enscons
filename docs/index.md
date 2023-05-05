@@ -52,10 +52,10 @@ url = "https://example.com/myproject"
 # installing in editable mode (pip install -e).
 src_root = "."
 
-[project.scripts]
+[tool.enscons.scripts]
 my-script = "packagename.modulename:main"
 
-[project.optional-dependencies]
+[tool.enscons.optional-dependencies]
 more = ["sphinx"]
 ```
 
