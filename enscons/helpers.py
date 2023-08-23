@@ -230,26 +230,21 @@ def pyarmor(py_files, env):
         
         def pyarmorify(target, source, env):
             try:
-                print("pyarmorify 1")
                 with tempfile.TemporaryDirectory() as tmpdir:
-                    print("pyarmorify 2")
                     first_source = None
                     for i, tgtfile in enumerate(target[:-1]):
                         srcfile = str(source[i])
                         tgtdir = Path(tmpdir) / str(source[i].dir)
                         tgtdir.mkdir(parents=True, exist_ok=True)
-                        print("copy %s -> %s" % (srcfile, tgtdir))
                         shutil.copy(srcfile, tgtdir)
                         if i == 0:
                             first_source = tgtdir / Path(srcfile).name
-                    print("pyarmorify 3")
                     if len(source) == len(target):
                         print("%s register %s" % (pyarmor_cmd, source[-1]))
                         if env.Execute("%s register %s" % (pyarmor_cmd, source[-1])):
                             raise RuntimeError("pyarmor register returned error")
-                    elif len(source) != len(target) + 1:
+                    elif len(source)+1 != len(target):
                         raise RuntimeError("Unexpected list lengths")
-                    print("pyarmorify 4")
                     print("%s obfuscate %s --recursive --output $WHEEL_PATH/${PACKAGE_METADATA['packages'][0]} %s" % (pyarmor_cmd, pyarmor_args, first_source))
                     if env.Execute("%s obfuscate %s --recursive --output $WHEEL_PATH/${PACKAGE_METADATA['packages'][0]} %s" % (pyarmor_cmd, pyarmor_args, first_source)):
                         raise RuntimeError("pyarmor obfuscate returned error")
