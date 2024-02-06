@@ -1,9 +1,9 @@
 [project]
-name = "enscons"
-description = "Tools for building Python packages with SCons"
+name = "enscons-forked"
+description = "Tools for building Python packages with SCons (forked for providing some useful features)"
 version = "0.28.0"
 
-authors = [{ name = "Daniel Holth", email = "dholth@fastmail.fm" }]
+authors = [{ name = "Christoph Wiedemann", email = "62332054+cwiede@users.noreply.github.com" }]
 classifiers = [
   "Programming Language :: Python :: 2.7",
   "Programming Language :: Python :: 3",
@@ -22,7 +22,7 @@ license = "MIT"
 packages = ["enscons"]
 readme = "README.rst"
 src_root = "."
-url = "https://github.com/dholth/enscons"
+url = "https://github.com/cwiede/enscons"
 
 [project.optional-dependencies]
 cli = ["click"]

@@ -8,6 +8,19 @@ Enscons is a Python packaging tool based on `SCons <http://scons.org/>`_.  It bu
 
 Enscons helps you to build sdists that can be automatically built by pip, and wheels that are independent of enscons.
 
+About this fork
+---------------
+
+This fork adds the following features to plain enscons:
+
+* optionally name SConstruct files enscons.py 
+
+* possibility to pass --config-settings of the form 'option=value' into SCons ARGUMENTS
+
+* possibility to have smaller SConstructs with the help of enscons.helper module (remove boilerplate code)
+
+* experimentally support pyarmor
+
 What does enscons provide?
 --------------------------
 
