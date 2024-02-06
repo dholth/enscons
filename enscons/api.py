@@ -22,6 +22,8 @@ import SCons.Script.Main
 
 def _run(alias):
     try:
+        if os.path.isfile("enscons.py") and not "-fenscons.py" in sys.argv:
+            sys.argv.append("-fenscons.py")
         SCons.Script.Main.main()
     except SystemExit:
         pass
