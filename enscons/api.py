@@ -30,17 +30,17 @@ def _run(alias):
     return os.path.basename(str(lookup))
 
 
-def prepare_metadata_for_build_wheel(metadata_directory, settings):
+def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
     sys.argv[1:] = ["--wheel-dir=" + metadata_directory, "dist_info"]
     return _run("dist_info")
 
 
-def build_wheel(wheel_directory, settings, metadata_directory=None):
+def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     sys.argv[1:] = ["--wheel-dir=" + wheel_directory, "bdist_wheel"]
     return _run("bdist_wheel")
 
 
-def build_sdist(sdist_directory, settings):
+def build_sdist(sdist_directory, config_settings=None):
     sys.argv[1:] = ["--dist-dir=" + sdist_directory, "sdist"]
     return _run("sdist")
 
