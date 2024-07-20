@@ -83,7 +83,7 @@ Here's a simple and complete example. The following sections will go over each p
 import tomllib
 import enscons
 
-metadata = tomllib.load(open("pyproject.toml"))["project"]
+metadata = tomllib.load(open("pyproject.toml", "rb"))["project"]
 tag = "py3-none-any"
 
 env = Environment(
@@ -110,7 +110,7 @@ by the SCons runtime.
 The SConstruct `Environment` object should be created as shown:
 
 ```python
-metadata = tomllib.load(open("pyproject.toml"))["project"]
+metadata = tomllib.load(open("pyproject.toml", "rb"))["project"]
 tag = "py3-none-any"
 
 env = Environment(
@@ -234,7 +234,7 @@ These variables are settable using kwargs to the `Environment()` constructor.
 
     .. code-block:: python
 
-        metadata = toml.load(open("pyproject.toml"))["project"]
+        metadata = toml.load(open("pyproject.toml", "rb"))["project"]
 
     This variable is required.
 

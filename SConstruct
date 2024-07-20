@@ -25,7 +25,7 @@
 import tomllib as toml
 import enscons
 
-metadata = toml.load(open("pyproject.toml"))["project"]
+metadata = toml.load(open("pyproject.toml", "rb"))["project"]
 
 full_tag = "py2.py3-none-any"
 

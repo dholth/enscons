@@ -4,7 +4,7 @@
 import enscons
 import tomllib as toml
 
-metadata = dict(toml.load(open("pyproject.toml")))["project"]
+metadata = dict(toml.load(open("pyproject.toml", "rb")))["project"]
 
 # set to True if package is not pure Python
 HAS_NATIVE_CODE = False
