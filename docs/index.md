@@ -80,10 +80,10 @@ builder, a `WhlFile` builder, and an `SDist` builder.
 Here's a simple and complete example. The following sections will go over each part in more detail.
 
 ```python
-import pytoml as  toml
+import tomllib
 import enscons
 
-metadata = toml.load(open("pyproject.toml"))["project"]
+metadata = tomllib.load(open("pyproject.toml"))["project"]
 tag = "py3-none-any"
 
 env = Environment(
@@ -110,7 +110,7 @@ by the SCons runtime.
 The SConstruct `Environment` object should be created as shown:
 
 ```python
-metadata = toml.load(open("pyproject.toml"))["project"]
+metadata = tomllib.load(open("pyproject.toml"))["project"]
 tag = "py3-none-any"
 
 env = Environment(

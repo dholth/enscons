@@ -2,14 +2,18 @@
 # Call enscons to emulate setup.py, installing if necessary.
 # (this setup.py can be copied into any enscons-powered project by editing requires=)
 
-import sys, subprocess, os.path
+import sys
+import subprocess
 
 sys.path[0:0] = ["setup-requires"]
 
 try:
     import enscons.setup
 except ImportError:
-    requires = ["scons>=3.0.5", "pytoml"]  # just ["enscons"] for enscons users
+    requires = [
+        "scons>=3.0.5",
+        "tomllib; python_version<'3.11'",
+    ]  # just ["enscons"] for enscons users
     subprocess.check_call(
         [sys.executable, "-m", "pip", "install", "-t", "setup-requires"] + requires
     )

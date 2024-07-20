@@ -4,14 +4,17 @@ Compiled extension support.
 
 from __future__ import print_function
 
-import distutils.sysconfig, sysconfig, os, os.path
+import sysconfig
+import os
+import os.path
 
-from distutils.core import Distribution
-from distutils.extension import Extension
-from distutils.command.build_ext import build_ext
+from setuptools import Distribution
+from setuptools.extension import Extension
+from setuptools.command.build_ext import build_ext
 
 import importlib
 import importlib.machinery
+
 
 # not used when generate is passed directly to Environment
 def exists(env):
@@ -28,8 +31,6 @@ def extension_filename(modname, abi3=False):
     If abi3=True and supported by the interpreter, return e.g.
     "a/b/c.abi3.so".
     """
-    from distutils.sysconfig import get_config_var
-
     # we could probably just split modname by '.' instead of using ext here:
     ext = get_build_ext()
     fullname = ext.get_ext_fullname(modname)
@@ -42,10 +43,7 @@ def extension_filename(modname, abi3=False):
         suffix = suffixes[0] if suffixes else None
     except AttributeError:
         pass
-    if not suffix:
-        suffix = get_config_var("EXT_SUFFIX")
-    if not suffix:
-        suffix = get_config_var("SO")  # py2
+    suffix = sysconfig.get_config_var("EXT_SUFFIX")
 
     if abi3:
         suffix = get_abi3_suffix() or suffix
@@ -55,6 +53,7 @@ def extension_filename(modname, abi3=False):
 
 class no_build_ext(build_ext):
     output = []  # for testing
+
     # Are you kidding me? We have to run build_ext() to finish configuring the compiler.
     def build_extension(self, ext):
         def noop_spawn(*args):
@@ -102,8 +101,8 @@ def generate(env):
     # Actually this has side effects adding redundant arguments to ext's compiler.
     # Could copy the compiler from ext before run() is called.
     if False:
-        compiler = distutils.ccompiler.new_compiler()
-        distutils.sysconfig.customize_compiler(compiler)
+        compiler = setuptools.ccompiler.new_compiler()
+        setuptools.sysconfig.customize_compiler(compiler)
 
     ext = get_build_ext()
 

@@ -14,7 +14,7 @@ import sys
 import pprint
 import os.path
 import click
-import pytoml as toml
+import tomllib as toml
 
 
 class Backend(object):

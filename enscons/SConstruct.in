@@ -2,7 +2,7 @@
 # (filled by enscons.setup2toml)
 
 import enscons
-import pytoml as toml
+import tomllib as toml
 
 metadata = dict(toml.load(open("pyproject.toml")))["project"]
 

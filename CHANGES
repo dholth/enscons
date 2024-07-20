@@ -1,3 +1,9 @@
+0.30.0
+------
+- Support Python 3.12 with deprecated distutils, imp
+- Use setuptools for enscons.cpyext
+- Use tomllib (requires Python 3.11+)
+
 0.28.0
 ------
 - Update editables for approved PEP 660

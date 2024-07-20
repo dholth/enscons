@@ -52,13 +52,13 @@ def tar(target, source, env):
 
         def _filter(info):
             """Return potentially anonymize tarinfo"""
-            if taruid != None:
+            if taruid is not None:
                 info.uid = taruid
                 info.uname = ""
-            if targid != None:
+            if targid is not None:
                 info.gid = targid
                 info.gname = ""
-            if tarmtime != None:
+            if tarmtime is not None:
                 info.mtime = tarmtime
             return info
 
