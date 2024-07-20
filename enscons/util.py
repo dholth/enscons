@@ -20,7 +20,7 @@ def safe_name(name):
     """
     return re.sub("[^A-Za-z0-9.]+", "-", name)
 
-
+# see also https://packaging.pypa.io/en/stable/utils.html#packaging.utils.canonicalize_version etc.
 # from pkg_resources
 def safe_version(version):
     """
