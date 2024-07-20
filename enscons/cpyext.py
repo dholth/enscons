@@ -10,8 +10,8 @@ from distutils.core import Distribution
 from distutils.extension import Extension
 from distutils.command.build_ext import build_ext
 
-import imp
 import importlib
+import importlib.machinery
 
 # not used when generate is passed directly to Environment
 def exists(env):
@@ -88,7 +88,7 @@ def get_build_ext(name="zoot"):
 # from setuptools
 def get_abi3_suffix():
     """Return the file extension for an abi3-compliant Extension()"""
-    for suffix, _, _ in (s for s in imp.get_suffixes() if s[2] == imp.C_EXTENSION):
+    for suffix in importlib.machinery.EXTENSION_SUFFIXES:
         if ".abi3" in suffix:  # Unix
             return suffix
         elif suffix == ".pyd":  # Windows
