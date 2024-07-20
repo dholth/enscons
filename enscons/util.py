@@ -33,6 +33,13 @@ def safe_version(version):
         version = version.replace(" ", ".")
         return re.sub("[^A-Za-z0-9.]+", "-", version)
 
+# from pkg_resources
+def to_filename(name):
+    """Convert a project or version name to its filename-escaped form
+
+    Any '-' characters are currently replaced with '_'.
+    """
+    return name.replace('-', '_')
 
 # from wheel
 def requires_to_requires_dist(requirement):
