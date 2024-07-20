@@ -22,7 +22,7 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 
-import tomllib as toml
+import enscons.toml as toml
 import enscons
 
 metadata = toml.load(open("pyproject.toml", "rb"))["project"]
