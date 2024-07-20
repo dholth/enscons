@@ -183,7 +183,6 @@ def egg_info_builder(target, source, env):
     """
     Minimum egg_info. To be used only by pip to get dependencies.
     """
-    env["PACKAGE_METADATA"]
     for dnode in env.arg2nodes(target):
         if dnode.name == "PKG-INFO":
             with open(dnode.get_path(), "w") as f:
