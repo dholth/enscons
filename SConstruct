@@ -22,11 +22,10 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 
-import pytoml as toml
+import enscons.toml as toml
 import enscons
-import sys
 
-metadata = toml.load(open("pyproject.toml"))["project"]
+metadata = toml.load(open("pyproject.toml", "rb"))["project"]
 
 full_tag = "py2.py3-none-any"
 

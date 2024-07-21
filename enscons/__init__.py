@@ -65,13 +65,9 @@ import SCons.Script
 
 from SCons.Script import Copy, Action, FindInstalledFiles, GetOption, AddOption
 
-from distutils import sysconfig
-from collections import defaultdict
-
 from .util import safe_name, to_filename, generate_requirements
 
 import codecs
-import distutils.ccompiler, distutils.sysconfig, distutils.unixccompiler
 import os.path
 import SCons.Node.FS
 
@@ -82,7 +78,7 @@ def get_binary_tag():
     """
     from packaging import tags
 
-    return str(next(tag for tag in tags.sys_tags() if not "manylinux" in tag.platform))
+    return str(next(tag for tag in tags.sys_tags() if "manylinux" not in tag.platform))
 
 
 def get_universal_tag():
@@ -187,7 +183,6 @@ def egg_info_builder(target, source, env):
     """
     Minimum egg_info. To be used only by pip to get dependencies.
     """
-    metadata = env["PACKAGE_METADATA"]
     for dnode in env.arg2nodes(target):
         if dnode.name == "PKG-INFO":
             with open(dnode.get_path(), "w") as f:
@@ -249,7 +244,7 @@ def metadata_source(env):
     # Maybe the two should be unified.
     if "license" in metadata:
         if not _is_string(metadata["license"]):
-            if not ("text" in metadata["license"]):
+            if "text" not in metadata["license"]:
                 source.append(metadata["license"]["file"])
     if "readme" in metadata:
         if _is_string(metadata["readme"]):
@@ -386,7 +381,6 @@ def add_editable(target, source, env):
     archive = zipfile.ZipFile(
         target[0].get_path(), "a", compression=zipfile.ZIP_DEFLATED
     )
-    lines = []
     for f, data in project.files():
         archive.writestr(zipfile.ZipInfo(f, time.gmtime(SOURCE_EPOCH_ZIP)[:6]), data)
     archive.close()
@@ -497,7 +491,7 @@ def init_wheel(env):
     # editable may need an extra dependency, so it gets its own dist-info directory.
     env.Command(editable_dist_info, env["DIST_INFO_PATH"], Copy("$TARGET", "$SOURCE"))
 
-    metadata2 = env.Command(
+    env.Command(
         editable_dist_info.File("METADATA"), metadata_source(env), metadata_builder
     )
 
@@ -593,7 +587,7 @@ def SDist(env, target=None, source=None):
     env.Clean(egg_info, env["EGG_INFO_PATH"])
     env.Alias("egg_info", egg_info)
 
-    pkg_info = env.Command("PKG-INFO", metadata_source(env), metadata_builder)
+    env.Command("PKG-INFO", metadata_source(env), metadata_builder)
 
     # also the root directory name inside the archive
     target_prefix = "-".join((env["PACKAGE_NAME"], env["PACKAGE_VERSION"]))

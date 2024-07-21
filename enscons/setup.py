@@ -1,9 +1,13 @@
 """
 enscons' implementation of setup.py, to be called from a shim setup.py for
 compatibility with traditional style packaging & tools.
+
+Now that pyproject.toml is widely supported, this should not be needed.
 """
 
-import sys, pkg_resources, argparse
+import sys
+import pkg_resources
+import argparse
 
 
 def develop(path):

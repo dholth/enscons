@@ -7,9 +7,16 @@ from __future__ import print_function, absolute_import
 
 import runpy
 from collections import OrderedDict
-import setuptools, distutils.core
-import sys, os, codecs, errno
-import pytoml
+import setuptools
+try:
+    import distutils.core as distutils_core
+except ImportError:
+    distutils_core = None
+import sys
+import os
+import codecs
+import errno
+import tomli_w
 
 import pkgutil
 
@@ -90,7 +97,8 @@ def main():
         setup_.arguments = kw
 
     setuptools.setup = setup_
-    distutils.core.setup = setup_
+    if distutils_core:
+        distutils_core.setup = setup_
 
     sys.path[0:0] = "."
 
@@ -138,14 +146,14 @@ def main():
     if "long_description" in ordered_arguments:
         sys.stderr.write("Consider replacing long_description with description_file\n")
 
-    pyproject = pytoml.dumps(
-        OrderedDict(
+    pyproject = tomli_w.dumps(
+        dict(
             [
                 ["project", ordered_arguments],
                 [
                     "build-system",
                     {
-                        "requires": ["pytoml>=0.1", "enscons"],
+                        "requires": ["enscons"],
                         "build-backend": "enscons.api",
                     },
                 ],

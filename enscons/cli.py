@@ -14,12 +14,12 @@ import sys
 import pprint
 import os.path
 import click
-import pytoml as toml
+import tomllib as toml
 
 
 class Backend(object):
     def __init__(self):
-        self.metadata = dict(toml.load(open("pyproject.toml")))
+        self.metadata = dict(toml.load(open("pyproject.toml", "rb")))
         build_backend = self.metadata["build-system"]["build-backend"]
         module, _, obj = build_backend.partition(":")
         __import__(module)

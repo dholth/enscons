@@ -1,21 +1,20 @@
 [project]
 name = "enscons"
 description = "Tools for building Python packages with SCons"
-version = "0.28.0"
+version = "0.30.0"
 
 authors = [{ name = "Daniel Holth", email = "dholth@fastmail.fm" }]
 classifiers = [
-  "Programming Language :: Python :: 2.7",
   "Programming Language :: Python :: 3",
 ]
 dependencies = [
   "scons>=3.0.5",
-  "pytoml>=0.1",
+  "tomli;python_version<'3.11'",
   "setuptools",
   "wheel",
   "attrs",
   "packaging>=20.9",
-  "editables==0.2;python_version>'3.0'",
+  "editables",
 ]
 keywords = ["packaging", "wheel"]
 license = "MIT"
@@ -37,5 +36,5 @@ backend-path = ["."] # only for bootstrapped enscons
 requires = [
   "scons",
   "packaging",
-  "pytoml>=0.1",
+  "tomli;python_version<'3.11'",
 ] # enscons users add "enscons>=0.28" to this list

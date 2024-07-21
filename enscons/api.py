@@ -23,8 +23,9 @@ import SCons.Script.Main
 def _run(alias):
     try:
         SCons.Script.Main.main()
-    except SystemExit:
-        pass
+    except SystemExit as e:
+        if e.code != 0:
+            raise
     # extreme non-api:
     lookup = SCons.Node.arg2nodes_lookups[0](alias).sources[0]
     return os.path.basename(str(lookup))
