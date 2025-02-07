@@ -37,4 +37,5 @@ requires = [
   "scons",
   "packaging",
   "tomli;python_version<'3.11'",
+  "editables", # automatically picked up if not bootstrapping enscons
 ] # enscons users add "enscons>=0.28" to this list
